@@ -288,8 +288,8 @@ function drawRow(drawBoxInfo, x, y, z) {
     drawChair(drawBoxInfo, 1.5, 0, 0);
     drawChair(drawBoxInfo, 4.5, 0, 0);
 
-    drawTable(drawBoxInfo, -2.55, 0, 3);
-    drawTable(drawBoxInfo, 2.55, 0, 3);
+    drawTable(drawBoxInfo, -3.05, 0, 3);
+    drawTable(drawBoxInfo, 3.05, 0, 3);
 
     modelMatrix = popMatrix();
 }
@@ -303,7 +303,7 @@ function drawTable(drawBoxInfo, x, y, z) {
 
     // Model the chair seat
     pushMatrix(modelMatrix);
-    modelMatrix.scale(5, 0.3, 3.0); // Scale
+    modelMatrix.scale(6, 0.3, 3.0); // Scale
     drawbox(drawBoxInfo);
     modelMatrix = popMatrix();
 
@@ -318,7 +318,7 @@ function drawTable(drawBoxInfo, x, y, z) {
     for (var i = 0; i < legOffsets.length; i += 2)
     {
         pushMatrix(modelMatrix);
-        modelMatrix.translate(2.25 * legOffsets[i], -1.15, 1.25 * legOffsets[i + 1]);  // Translation
+        modelMatrix.translate(2.75 * legOffsets[i], -1.15, 1.25 * legOffsets[i + 1]);  // Translation
         modelMatrix.scale(0.4, 2.0, 0.4); // Scale
         drawbox(drawBoxInfo);
         modelMatrix = popMatrix();
