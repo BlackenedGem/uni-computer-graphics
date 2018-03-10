@@ -13,6 +13,18 @@ var ANGLE_STEP = 3.0;  // The increments of rotation angle (degrees)
 var g_xAngle = 0.0;    // The rotation x angle (degrees)
 var g_yAngle = 0.0;    // The rotation y angle (degrees)
 
+// Camera
+var camera = {
+    x: 0,
+    y: 0,
+    z: 100
+};
+
+// User interaction
+var isMouseDown = false;
+document.onmousedown = function() { isMouseDown = true };
+document.onmouseup   = function() { isMouseDown = false };
+
 function main() {
     // Retrieve <canvas> element
     var canvas = document.getElementById('webgl');
@@ -64,7 +76,7 @@ function main() {
     gl.uniform3fv(u_LightDirection, lightDirection.elements);
 
     // Calculate the view matrix and the projection matrix
-    viewMatrix.setLookAt(0, 0, 100, 0, 0, -100, 0, 1, 1);
+    viewMatrix.setLookAt(camera.x, camera.y, camera.z, 0, 0, -100, 0, 1, 1);
     projMatrix.setPerspective(30, canvas.width/canvas.height, 1, 150);
     // Pass the model, view, and projection matrix to the uniform variable respectively
     gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
@@ -75,7 +87,20 @@ function main() {
         keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
     };
 
+    document.onmousemove = function(ev) {
+        mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
+    };
+
     draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
+}
+
+function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
+    if (!isMouseDown) {
+        return;
+    }
+
+    console.log(ev.movementX);
+    console.log(ev.movementY);
 }
 
 function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
