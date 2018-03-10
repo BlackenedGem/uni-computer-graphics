@@ -302,7 +302,7 @@ function drawTable(drawBoxInfo, x, y, z) {
     drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.824, 0.706, 0.549, 1]);
 
     pushMatrix(modelMatrix);
-    modelMatrix.translate(x, y + 2.15, z);  // Translation
+    modelMatrix.translate(x, y + 3.25, z);  // Translation
 
     // Model the chair seat
     pushMatrix(modelMatrix);
@@ -311,7 +311,7 @@ function drawTable(drawBoxInfo, x, y, z) {
     modelMatrix = popMatrix();
 
     // Set the leg colour to dark grey
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.5, 0.5, 0.5, 1]);
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.3, 0.3, 0.3, 1]);
 
     // Model legs
     // Do this in a loop
@@ -321,8 +321,8 @@ function drawTable(drawBoxInfo, x, y, z) {
     for (var i = 0; i < legOffsets.length; i += 2)
     {
         pushMatrix(modelMatrix);
-        modelMatrix.translate(2.75 * legOffsets[i], -1.15, 1.25 * legOffsets[i + 1]);  // Translation
-        modelMatrix.scale(0.4, 2.0, 0.4); // Scale
+        modelMatrix.translate(2.75 * legOffsets[i], -1.7, 1.25 * legOffsets[i + 1]);  // Translation
+        modelMatrix.scale(0.4, 3.1, 0.4); // Scale
         drawbox(drawBoxInfo);
         modelMatrix = popMatrix();
     }
