@@ -12,8 +12,8 @@ var g_normalMatrix = new Matrix4();  // Coordinate transformation matrix for nor
 // Camera
 var camera = {
     x: 0,
-    y: 0,
-    z: 100,
+    y: 10,
+    z: 30,
     azimuth: 180,
     altitude: 0
 };
@@ -96,20 +96,38 @@ function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     }
 
     camera.azimuth = (camera.azimuth + ev.movementX * -0.25) % 360;
-    camera.altitude = (camera.altitude + ev.movementY * -0.25) % 360;
+
+    // Don't let the camera look exactly straight up or straight down
+    camera.altitude += ev.movementY * -0.25;
+    if (camera.altitude > 89.9) {
+        camera.altitude = 89.9;
+    }
+    if (camera.altitude < -89.9) {
+        camera.altitude = -89.9;
+    }
 
     draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
 }
 
 function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     switch (ev.keyCode) {
+        case 87: // W key
+            moveCameraDownwards(-1);
+            break;
+        case 83: // S key
+            moveCameraDownwards(1);
+            break;
         case 40: // Up arrow key
+            moveCameraBackwards(-1);
             break;
         case 38: // Down arrow key
+            moveCameraBackwards(1);
             break;
-        case 39: // Right arrow ke
+        case 39: // Right arrow key
+            moveCameraSideways(-1);
             break;
         case 37: // Left arrow key
+            moveCameraSideways(1);
             break;
         default: return; // Skip drawing at no effective action
     }
@@ -118,15 +136,43 @@ function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
 }
 
-function positionCamera(gl) {
-    var x_at_off = Math.sin(degToRad(camera.azimuth));
-    var z_at_off = Math.cos(degToRad(camera.azimuth));
-    var y_at_off = Math.sin(degToRad(camera.altitude));
+function moveCameraBackwards(amount) {
+    var x_move = Math.sin(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
+    var z_move = Math.cos(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
+    var y_move = Math.sin(degToRad(camera.altitude));
 
+    camera.x += x_move * amount;
+    camera.y += y_move * amount;
+    camera.z += z_move * amount;
+}
+
+function moveCameraSideways(amount) {
+    var x_move = Math.cos(degToRad(camera.azimuth));
+    var z_move = Math.sin(degToRad(camera.azimuth)) * -1;
+
+    camera.x += x_move * amount;
+    camera.z += z_move * amount;
+}
+
+function moveCameraDownwards(amount) {
+    var x_move = Math.sin(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
+    var z_move = Math.cos(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
+    var y_move = Math.cos(degToRad(camera.altitude)) * -1;
+
+    camera.x += x_move * amount;
+    camera.y += y_move * amount;
+    camera.z += z_move * amount;
+}
+
+// Actually position the camera with view and projection matrix
+function positionCamera(gl) {
+    var x_at_off = Math.sin(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
+    var z_at_off = Math.cos(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
+    var y_at_off = Math.sin(degToRad(camera.altitude));
 
     // Calculate the view matrix and the projection matrix
     viewMatrix.setLookAt(camera.x, camera.y, camera.z, camera.x + x_at_off, camera.y + y_at_off, camera.z + z_at_off, 0, 1, 0);
-    projMatrix.setPerspective(30, camera.aspectRatio, 1, 150);
+    projMatrix.setPerspective(90, camera.aspectRatio, 1, 1000);
 
     // Pass the model, view, and projection matrix to the uniform variable respectively
     gl.uniformMatrix4fv(camera.u_ViewMatrix, false, viewMatrix.elements);
