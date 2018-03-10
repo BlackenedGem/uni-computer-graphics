@@ -299,7 +299,7 @@ function drawTable(drawBoxInfo, x, y, z) {
     drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.824, 0.706, 0.549, 1]);
 
     pushMatrix(modelMatrix);
-    modelMatrix.translate(x, y, z);  // Translation
+    modelMatrix.translate(x, y + 2.15, z);  // Translation
 
     // Model the chair seat
     pushMatrix(modelMatrix);
@@ -332,7 +332,7 @@ function drawChair(drawBoxInfo, x, y, z) {
     drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0, 1, 0, 1]);
 
     pushMatrix(modelMatrix);
-    modelMatrix.translate(x, y, z);  // Translation
+    modelMatrix.translate(x, y + 2.15, z);  // Translation
 
     // Model the chair seat
     pushMatrix(modelMatrix);
