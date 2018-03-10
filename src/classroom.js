@@ -99,8 +99,10 @@ function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
         return;
     }
 
-    console.log(ev.movementX);
-    console.log(ev.movementY);
+    camera.azimuth = (camera.azimuth + ev.movementX * -0.25) % 360;
+    camera.altitude = (camera.altitude + ev.movementY * -0.25) % 360;
+
+    draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
 }
 
 function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
@@ -127,11 +129,11 @@ function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
 function positionCamera(gl) {
     var x_at_off = Math.sin(degToRad(camera.azimuth));
     var z_at_off = Math.cos(degToRad(camera.azimuth));
+    var y_at_off = Math.sin(degToRad(camera.altitude));
 
-    console.log(z_at_off);
 
     // Calculate the view matrix and the projection matrix
-    viewMatrix.setLookAt(camera.x, camera.y, camera.z, camera.x + x_at_off, 0, camera.z + z_at_off, 0, 1, 0);
+    viewMatrix.setLookAt(camera.x, camera.y, camera.z, camera.x + x_at_off, camera.y + y_at_off, camera.z + z_at_off, 0, 1, 0);
     projMatrix.setPerspective(30, camera.aspectRatio, 1, 150);
 
     // Pass the model, view, and projection matrix to the uniform variable respectively
