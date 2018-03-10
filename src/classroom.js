@@ -182,6 +182,45 @@ function initArrayBuffer (gl, attribute, data, num, type) {
     return true;
 }
 
+function initAxesVertexBuffers(gl) {
+    var verticesColors = new Float32Array([
+        // Vertex coordinates and color (for axes)
+        -20.0,  0.0,   0.0,  1.0,  1.0,  1.0,  // (x,y,z), (r,g,b)
+        20.0,  0.0,   0.0,  1.0,  1.0,  1.0,
+        0.0,  20.0,   0.0,  1.0,  1.0,  1.0,
+        0.0, -20.0,   0.0,  1.0,  1.0,  1.0,
+        0.0,   0.0, -20.0,  1.0,  1.0,  1.0,
+        0.0,   0.0,  20.0,  1.0,  1.0,  1.0
+    ]);
+    var n = 6;
+
+    // Create a buffer object
+    var vertexColorBuffer = gl.createBuffer();
+    if (!vertexColorBuffer) {
+        console.log('Failed to create the buffer object');
+        return false;
+    }
+
+    // Bind the buffer object to target
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
+
+    var FSIZE = verticesColors.BYTES_PER_ELEMENT;
+    //Get the storage location of a_Position, assign and enable buffer
+    var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    if (a_Position < 0) {
+        console.log('Failed to get the storage location of a_Position');
+        return -1;
+    }
+    gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 6, 0);
+    gl.enableVertexAttribArray(a_Position);  // Enable the assignment of the buffer object
+
+    // Unbind the buffer object
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    return n;
+}
+
 var g_matrixStack = []; // Array for storing a matrix
 function pushMatrix(m) { // Store the specified matrix to the array
     var m2 = new Matrix4(m);
@@ -196,15 +235,29 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    gl.uniform1i(u_isLighting, false); // Will not apply lighting
+
+    // Set the vertex coordinates and color (for the x, y axes)
+
+    var n = initAxesVertexBuffers(gl);
+    if (n < 0) {
+        console.log('Failed to set the vertex information');
+        return;
+    }
+
     // Calculate the view matrix and the projection matrix
     modelMatrix.setTranslate(0, 0, 0);  // No Translation
     // Pass the model matrix to the uniform variable
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 
+    // Draw x and y axes
+    gl.uniform4fv(u_Color, [0.5, 0.5, 0.5, 0]);
+    gl.drawArrays(gl.LINES, 0, n);
+
     gl.uniform1i(u_isLighting, true); // Will apply lighting
 
     // Set the vertex coordinates and color (for the cube)
-    var n = initVertexBuffers(gl);
+    n = initVertexBuffers(gl);
     if (n < 0) {
         console.log('Failed to set the vertex information');
         return;
