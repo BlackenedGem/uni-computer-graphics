@@ -275,8 +275,11 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     modelMatrix.rotate(g_yAngle, 0, 1, 0); // Rotate along y axis
     modelMatrix.rotate(g_xAngle, 1, 0, 0); // Rotate along x axis
 
-    drawRow(drawBoxInfo, 0, 0, 0);
-    // drawTable(drawBoxInfo, 0, 0, 0);
+    // Draw 3 rows of chairs/tables
+    for (var i = 0; i < 3; i++) {
+        drawRow(drawBoxInfo, 9, 0, i * 8);
+        drawRow(drawBoxInfo, -9, 0, i * 8);
+    }
 }
 
 function drawRow(drawBoxInfo, x, y, z) {
