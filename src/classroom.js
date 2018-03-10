@@ -51,7 +51,7 @@ function main() {
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
         !u_ProjMatrix || !u_LightColor || !u_LightDirection ||
         !u_isLighting ) {
-        console.log('Failed to Get the storage locations of u_ModelMatrix, u_ViewMatrix, and/or u_ProjMatrix');
+        console.log('Failed to Get the storage locations of at least one matrix');
         return;
     }
 
@@ -255,11 +255,9 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
 
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
     gl.uniform1i(u_isLighting, false); // Will not apply lighting
 
     // Set the vertex coordinates and color (for the x, y axes)
-
     var n = initAxesVertexBuffers(gl);
     if (n < 0) {
         console.log('Failed to set the vertex information');
@@ -290,16 +288,30 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
 
     // Model the chair seat
     pushMatrix(modelMatrix);
-    modelMatrix.scale(2.0, 0.5, 2.0); // Scale
+    modelMatrix.scale(2.0, 0.3, 2.0); // Scale
     drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
     modelMatrix = popMatrix();
 
     // Model the chair back
     pushMatrix(modelMatrix);
-    modelMatrix.translate(0, 1.25, -0.75);  // Translation
-    modelMatrix.scale(2.0, 2.0, 0.5); // Scale
+    modelMatrix.translate(0, 1.65, -0.85);  // Translation
+    modelMatrix.scale(2.0, 3.0, 0.3); // Scale
     drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
     modelMatrix = popMatrix();
+
+    // Model legs
+    // Do this in a loop
+    // Array is a bunch of x/y multiplicative offsets
+    var legOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
+
+    for (var i = 0; i < legOffsets.length; i += 2)
+    {
+        pushMatrix(modelMatrix);
+        modelMatrix.translate(0.8 * legOffsets[i], -1, 0.8 * legOffsets[i + 1]);  // Translation
+        modelMatrix.scale(0.4, 2.0, 0.4); // Scale
+        drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+        modelMatrix = popMatrix();
+    }
 }
 
 function drawbox(gl, u_ModelMatrix, u_NormalMatrix, n) {
