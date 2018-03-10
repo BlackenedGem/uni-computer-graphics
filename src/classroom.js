@@ -276,6 +276,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     modelMatrix.rotate(g_xAngle, 1, 0, 0); // Rotate along x axis
 
     drawRow(drawBoxInfo, 0, 0, 0);
+    // drawTable(drawBoxInfo, 0, 0, 0);
 }
 
 function drawRow(drawBoxInfo, x, y, z) {
@@ -286,6 +287,42 @@ function drawRow(drawBoxInfo, x, y, z) {
     drawChair(drawBoxInfo, -1.5, 0, 0);
     drawChair(drawBoxInfo, 1.5, 0, 0);
     drawChair(drawBoxInfo, 4.5, 0, 0);
+
+    drawTable(drawBoxInfo, -2.55, 0, 3);
+    drawTable(drawBoxInfo, 2.55, 0, 3);
+
+    modelMatrix = popMatrix();
+}
+
+function drawTable(drawBoxInfo, x, y, z) {
+    // Set the table colour to a browny colour
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.824, 0.706, 0.549, 1]);
+
+    pushMatrix(modelMatrix);
+    modelMatrix.translate(x, y, z);  // Translation
+
+    // Model the chair seat
+    pushMatrix(modelMatrix);
+    modelMatrix.scale(5, 0.3, 3.0); // Scale
+    drawbox(drawBoxInfo);
+    modelMatrix = popMatrix();
+
+    // Set the leg colour to dark grey
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.5, 0.5, 0.5, 1]);
+
+    // Model legs
+    // Do this in a loop
+    // Array is a bunch of x/y multiplicative offsets
+    var legOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
+
+    for (var i = 0; i < legOffsets.length; i += 2)
+    {
+        pushMatrix(modelMatrix);
+        modelMatrix.translate(2.25 * legOffsets[i], -1.15, 1.25 * legOffsets[i + 1]);  // Translation
+        modelMatrix.scale(0.4, 2.0, 0.4); // Scale
+        drawbox(drawBoxInfo);
+        modelMatrix = popMatrix();
+    }
 
     modelMatrix = popMatrix();
 }
@@ -311,7 +348,7 @@ function drawChair(drawBoxInfo, x, y, z) {
     modelMatrix = popMatrix();
 
     // Set the leg colour to dark grey
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.9, 0.9, 0.9, 1]);
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.5, 0.5, 0.5, 1]);
 
     // Model legs
     // Do this in a loop
