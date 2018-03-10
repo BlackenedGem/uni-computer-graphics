@@ -9,10 +9,6 @@ var viewMatrix = new Matrix4();  // The view matrix
 var projMatrix = new Matrix4();  // The projection matrix
 var g_normalMatrix = new Matrix4();  // Coordinate transformation matrix for normals
 
-var ANGLE_STEP = 3.0;  // The increments of rotation angle (degrees)
-var g_xAngle = 0.0;    // The rotation x angle (degrees)
-var g_yAngle = 0.0;    // The rotation y angle (degrees)
-
 // Camera
 var camera = {
     x: 0,
@@ -107,17 +103,13 @@ function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
 
 function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     switch (ev.keyCode) {
-        case 40: // Up arrow key -> the positive rotation of arm1 around the y-axis
-            g_xAngle = (g_xAngle + ANGLE_STEP) % 360;
+        case 40: // Up arrow key
             break;
-        case 38: // Down arrow key -> the negative rotation of arm1 around the y-axis
-            g_xAngle = (g_xAngle - ANGLE_STEP) % 360;
+        case 38: // Down arrow key
             break;
-        case 39: // Right arrow key -> the positive rotation of arm1 around the y-axis
-            g_yAngle = (g_yAngle + ANGLE_STEP) % 360;
+        case 39: // Right arrow ke
             break;
-        case 37: // Left arrow key -> the negative rotation of arm1 around the y-axis
-            g_yAngle = (g_yAngle - ANGLE_STEP) % 360;
+        case 37: // Left arrow key
             break;
         default: return; // Skip drawing at no effective action
     }
@@ -306,7 +298,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
         return;
     }
 
-    // Reduce parameters when calling drawbox by storing in an object
+    // Reduce parameters when calling drawBox by storing in an object
     var drawBoxInfo = {
         gl: gl,
         u_ModelMatrix: u_ModelMatrix,
@@ -314,9 +306,6 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
         u_Color: u_Color,
         n: n
     };
-
-    modelMatrix.rotate(g_yAngle, 0, 1, 0); // Rotate along y axis
-    modelMatrix.rotate(g_xAngle, 1, 0, 0); // Rotate along x axis
 
     // Draw 3 rows of chairs/tables
     for (var i = 0; i < 3; i++) {
@@ -350,7 +339,7 @@ function drawTable(drawBoxInfo, x, y, z) {
     // Model the chair seat
     pushMatrix(modelMatrix);
     modelMatrix.scale(6, 0.3, 3.0); // Scale
-    drawbox(drawBoxInfo);
+    drawBox(drawBoxInfo);
     modelMatrix = popMatrix();
 
     // Set the leg colour to dark grey
@@ -366,7 +355,7 @@ function drawTable(drawBoxInfo, x, y, z) {
         pushMatrix(modelMatrix);
         modelMatrix.translate(2.75 * legOffsets[i], -1.7, 1.25 * legOffsets[i + 1]);  // Translation
         modelMatrix.scale(0.4, 3.1, 0.4); // Scale
-        drawbox(drawBoxInfo);
+        drawBox(drawBoxInfo);
         modelMatrix = popMatrix();
     }
 
@@ -383,14 +372,14 @@ function drawChair(drawBoxInfo, x, y, z) {
     // Model the chair seat
     pushMatrix(modelMatrix);
     modelMatrix.scale(2.0, 0.3, 2.0); // Scale
-    drawbox(drawBoxInfo);
+    drawBox(drawBoxInfo);
     modelMatrix = popMatrix();
 
     // Model the chair back
     pushMatrix(modelMatrix);
     modelMatrix.translate(0, 1.65, -0.85);  // Translation
     modelMatrix.scale(2.0, 3.0, 0.3); // Scale
-    drawbox(drawBoxInfo);
+    drawBox(drawBoxInfo);
     modelMatrix = popMatrix();
 
     // Set the leg colour to dark grey
@@ -406,14 +395,14 @@ function drawChair(drawBoxInfo, x, y, z) {
         pushMatrix(modelMatrix);
         modelMatrix.translate(0.8 * legOffsets[i], -1.15, 0.8 * legOffsets[i + 1]);  // Translation
         modelMatrix.scale(0.4, 2.0, 0.4); // Scale
-        drawbox(drawBoxInfo);
+        drawBox(drawBoxInfo);
         modelMatrix = popMatrix();
     }
 
     modelMatrix = popMatrix();
 }
 
-function drawbox(drawBoxInfo) {
+function drawBox(drawBoxInfo) {
     var gl = drawBoxInfo.gl;
     var u_ModelMatrix = drawBoxInfo.u_ModelMatrix;
     var u_NormalMatrix = drawBoxInfo.u_NormalMatrix;
