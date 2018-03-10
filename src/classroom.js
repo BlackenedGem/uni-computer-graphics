@@ -281,6 +281,14 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
         return;
     }
 
+    // Reduce parameters when calling drawbox by storing in an object
+    var drawBoxInfo = {
+        gl: gl,
+        u_ModelMatrix: u_ModelMatrix,
+        u_NormalMatrix: u_NormalMatrix,
+        n: n
+    };
+
     // Rotate, and then translate
     modelMatrix.setTranslate(0, 0, 0);  // Translation (No translation is supported here)
     modelMatrix.rotate(g_yAngle, 0, 1, 0); // Rotate along y axis
@@ -289,14 +297,14 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
     // Model the chair seat
     pushMatrix(modelMatrix);
     modelMatrix.scale(2.0, 0.3, 2.0); // Scale
-    drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+    drawbox(drawBoxInfo);
     modelMatrix = popMatrix();
 
     // Model the chair back
     pushMatrix(modelMatrix);
     modelMatrix.translate(0, 1.65, -0.85);  // Translation
     modelMatrix.scale(2.0, 3.0, 0.3); // Scale
-    drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+    drawbox(drawBoxInfo);
     modelMatrix = popMatrix();
 
     // Model legs
@@ -309,12 +317,17 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
         pushMatrix(modelMatrix);
         modelMatrix.translate(0.8 * legOffsets[i], -1, 0.8 * legOffsets[i + 1]);  // Translation
         modelMatrix.scale(0.4, 2.0, 0.4); // Scale
-        drawbox(gl, u_ModelMatrix, u_NormalMatrix, n);
+        drawbox(drawBoxInfo);
         modelMatrix = popMatrix();
     }
 }
 
-function drawbox(gl, u_ModelMatrix, u_NormalMatrix, n) {
+function drawbox(drawBoxInfo) {
+    var gl = drawBoxInfo.gl;
+    var u_ModelMatrix = drawBoxInfo.u_ModelMatrix;
+    var u_NormalMatrix = drawBoxInfo.u_NormalMatrix;
+    var num_vertices = drawBoxInfo.n;
+
     pushMatrix(modelMatrix);
 
     // Pass the model matrix to the uniform variable
@@ -326,7 +339,7 @@ function drawbox(gl, u_ModelMatrix, u_NormalMatrix, n) {
     gl.uniformMatrix4fv(u_NormalMatrix, false, g_normalMatrix.elements);
 
     // Draw the cube
-    gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
+    gl.drawElements(gl.TRIANGLES, num_vertices, gl.UNSIGNED_BYTE, 0);
 
     modelMatrix = popMatrix();
 }
