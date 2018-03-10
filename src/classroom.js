@@ -17,7 +17,9 @@ var g_yAngle = 0.0;    // The rotation y angle (degrees)
 var camera = {
     x: 0,
     y: 0,
-    z: 100
+    z: 100,
+    azimuth: 180,
+    altitude: 0
 };
 
 // User interaction
@@ -28,6 +30,7 @@ document.onmouseup   = function() { isMouseDown = false };
 function main() {
     // Retrieve <canvas> element
     var canvas = document.getElementById('webgl');
+    camera.aspectRatio = canvas.width/canvas.height;
 
     // Get the rendering context for WebGL
     var gl = getWebGLContext(canvas);
@@ -68,6 +71,9 @@ function main() {
         return;
     }
 
+    camera.u_ViewMatrix = u_ViewMatrix;
+    camera.u_ProjMatrix = u_ProjMatrix;
+
     // Set the light color (white)
     gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
     // Set the light direction (in the world coordinate)
@@ -75,13 +81,7 @@ function main() {
     lightDirection.normalize();     // Normalize
     gl.uniform3fv(u_LightDirection, lightDirection.elements);
 
-    // Calculate the view matrix and the projection matrix
-    viewMatrix.setLookAt(camera.x, camera.y, camera.z, 0, 0, -100, 0, 1, 1);
-    projMatrix.setPerspective(30, canvas.width/canvas.height, 1, 150);
-    // Pass the model, view, and projection matrix to the uniform variable respectively
-    gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
-    gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
-
+    positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
     document.onkeydown = function(ev){
         keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
@@ -124,6 +124,20 @@ function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
 }
 
+function positionCamera(gl) {
+    var x_at_off = Math.sin(degToRad(camera.azimuth));
+    var z_at_off = Math.cos(degToRad(camera.azimuth));
+
+    console.log(z_at_off);
+
+    // Calculate the view matrix and the projection matrix
+    viewMatrix.setLookAt(camera.x, camera.y, camera.z, camera.x + x_at_off, 0, camera.z + z_at_off, 0, 1, 0);
+    projMatrix.setPerspective(30, camera.aspectRatio, 1, 150);
+
+    // Pass the model, view, and projection matrix to the uniform variable respectively
+    gl.uniformMatrix4fv(camera.u_ViewMatrix, false, viewMatrix.elements);
+    gl.uniformMatrix4fv(camera.u_ProjMatrix, false, projMatrix.elements);
+}
 
 function initVertexBuffers(gl) {
     // Create a cube
@@ -259,6 +273,8 @@ function popMatrix() { // Retrieve the matrix from the array
 function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    positionCamera(gl);
 
     gl.uniform1i(u_isLighting, false); // Will not apply lighting
 
@@ -415,6 +431,10 @@ function drawbox(drawBoxInfo) {
     gl.drawElements(gl.TRIANGLES, num_vertices, gl.UNSIGNED_BYTE, 0);
 
     modelMatrix = popMatrix();
+}
+
+function degToRad(degree) {
+    return degree * (Math.PI / 180);
 }
 
 function loadLocalFile(filename) {
