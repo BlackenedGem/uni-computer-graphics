@@ -289,8 +289,13 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
         n: n
     };
 
+    drawChair(drawBoxInfo, 2, 0, 0);
+    drawChair(drawBoxInfo, -2, 0, 0);
+}
+
+function drawChair(drawBoxInfo, x, y, z) {
     // Rotate, and then translate
-    modelMatrix.setTranslate(0, 0, 0);  // Translation (No translation is supported here)
+    modelMatrix.setTranslate(x, y, z);  // Translation
     modelMatrix.rotate(g_yAngle, 0, 1, 0); // Rotate along y axis
     modelMatrix.rotate(g_xAngle, 1, 0, 0); // Rotate along x axis
 
