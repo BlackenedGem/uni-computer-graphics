@@ -64,8 +64,8 @@ function main() {
     gl.uniform3fv(u_LightDirection, lightDirection.elements);
 
     // Calculate the view matrix and the projection matrix
-    viewMatrix.setLookAt(0, 0, 15, 0, 0, -100, 0, 1, 0);
-    projMatrix.setPerspective(30, canvas.width/canvas.height, 1, 100);
+    viewMatrix.setLookAt(0, 0, 100, 0, 0, -100, 0, 1, 1);
+    projMatrix.setPerspective(30, canvas.width/canvas.height, 1, 150);
     // Pass the model, view, and projection matrix to the uniform variable respectively
     gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
     gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
@@ -185,12 +185,12 @@ function initArrayBuffer (gl, attribute, data, num, type) {
 function initAxesVertexBuffers(gl) {
     var verticesColors = new Float32Array([
         // Vertex coordinates and color (for axes)
-        -20.0,  0.0,   0.0,  1.0,  1.0,  1.0,  // (x,y,z), (r,g,b)
-        20.0,  0.0,   0.0,  1.0,  1.0,  1.0,
-        0.0,  20.0,   0.0,  1.0,  1.0,  1.0,
-        0.0, -20.0,   0.0,  1.0,  1.0,  1.0,
-        0.0,   0.0, -20.0,  1.0,  1.0,  1.0,
-        0.0,   0.0,  20.0,  1.0,  1.0,  1.0
+        -50.0,  0.0,   0.0,  1.0,  1.0,  1.0,  // (x,y,z), (r,g,b)
+        50.0,  0.0,   0.0,  1.0,  1.0,  1.0,
+        0.0,  50.0,   0.0,  1.0,  1.0,  1.0,
+        0.0, -50.0,   0.0,  1.0,  1.0,  1.0,
+        0.0,   0.0, -50.0,  1.0,  1.0,  1.0,
+        0.0,   0.0,  50.0,  1.0,  1.0,  1.0
     ]);
     var n = 6;
 
