@@ -275,8 +275,19 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     modelMatrix.rotate(g_yAngle, 0, 1, 0); // Rotate along y axis
     modelMatrix.rotate(g_xAngle, 1, 0, 0); // Rotate along x axis
 
-    drawChair(drawBoxInfo, 2, 0, 0);
-    drawChair(drawBoxInfo, -2, 0, 0);
+    drawRow(drawBoxInfo, 0, 0, 0);
+}
+
+function drawRow(drawBoxInfo, x, y, z) {
+    pushMatrix(modelMatrix);
+    modelMatrix.translate(x, y, z);  // Translation
+
+    drawChair(drawBoxInfo, -4.5, 0, 0);
+    drawChair(drawBoxInfo, -1.5, 0, 0);
+    drawChair(drawBoxInfo, 1.5, 0, 0);
+    drawChair(drawBoxInfo, 4.5, 0, 0);
+
+    modelMatrix = popMatrix();
 }
 
 function drawChair(drawBoxInfo, x, y, z) {
