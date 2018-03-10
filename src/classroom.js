@@ -44,14 +44,15 @@ function main() {
     var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
     var u_LightColor = gl.getUniformLocation(gl.program, 'u_LightColor');
     var u_LightDirection = gl.getUniformLocation(gl.program, 'u_LightDirection');
+    var u_Color = gl.getUniformLocation(gl.program, 'u_Color');
 
     // Trigger using lighting or not
     var u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
 
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
         !u_ProjMatrix || !u_LightColor || !u_LightDirection ||
-        !u_isLighting ) {
-        console.log('Failed to Get the storage locations of at least one matrix');
+        !u_isLighting || !u_Color) {
+        console.log('Failed to Get the storage locations of at least one uniform');
         return;
     }
 
@@ -71,13 +72,13 @@ function main() {
 
 
     document.onkeydown = function(ev){
-        keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting);
+        keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
     };
 
-    draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting);
+    draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
 }
 
-function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
+function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     switch (ev.keyCode) {
         case 40: // Up arrow key -> the positive rotation of arm1 around the y-axis
             g_xAngle = (g_xAngle + ANGLE_STEP) % 360;
@@ -95,7 +96,7 @@ function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
     }
 
     // Draw the scene
-    draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting);
+    draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
 }
 
 
@@ -115,16 +116,6 @@ function initVertexBuffers(gl) {
         -0.5, 0.5, 0.5,  -0.5, 0.5,-0.5,  -0.5,-0.5,-0.5,  -0.5,-0.5, 0.5, // v1-v6-v7-v2 left
         -0.5,-0.5,-0.5,   0.5,-0.5,-0.5,   0.5,-0.5, 0.5,  -0.5,-0.5, 0.5, // v7-v4-v3-v2 down
         0.5,-0.5,-0.5,  -0.5,-0.5,-0.5,  -0.5, 0.5,-0.5,   0.5, 0.5,-0.5  // v4-v7-v6-v5 back
-    ]);
-
-
-    var colors = new Float32Array([    // Colors
-        1, 0, 0,   1, 0, 0,   1, 0, 0,  1, 0, 0,     // v0-v1-v2-v3 front
-        1, 0, 0,   1, 0, 0,   1, 0, 0,  1, 0, 0,     // v0-v3-v4-v5 right
-        1, 0, 0,   1, 0, 0,   1, 0, 0,  1, 0, 0,     // v0-v5-v6-v1 up
-        1, 0, 0,   1, 0, 0,   1, 0, 0,  1, 0, 0,     // v1-v6-v7-v2 left
-        1, 0, 0,   1, 0, 0,   1, 0, 0,  1, 0, 0,     // v7-v4-v3-v2 down
-        1, 0, 0,   1, 0, 0,   1, 0, 0,  1, 0, 0　    // v4-v7-v6-v5 back
     ]);
 
 
@@ -151,7 +142,6 @@ function initVertexBuffers(gl) {
 
     // Write the vertex property to buffers (coordinates, colors and normals)
     if (!initArrayBuffer(gl, 'a_Position', vertices, 3, gl.FLOAT)) return -1;
-    if (!initArrayBuffer(gl, 'a_Color', colors, 3, gl.FLOAT)) return -1;
     if (!initArrayBuffer(gl, 'a_Normal', normals, 3, gl.FLOAT)) return -1;
 
     // Write the indices to the buffer object
@@ -192,55 +182,6 @@ function initArrayBuffer (gl, attribute, data, num, type) {
     return true;
 }
 
-function initAxesVertexBuffers(gl) {
-
-    var verticesColors = new Float32Array([
-        // Vertex coordinates and color (for axes)
-        -20.0,  0.0,   0.0,  1.0,  1.0,  1.0,  // (x,y,z), (r,g,b)
-        20.0,  0.0,   0.0,  1.0,  1.0,  1.0,
-        0.0,  20.0,   0.0,  1.0,  1.0,  1.0,
-        0.0, -20.0,   0.0,  1.0,  1.0,  1.0,
-        0.0,   0.0, -20.0,  1.0,  1.0,  1.0,
-        0.0,   0.0,  20.0,  1.0,  1.0,  1.0
-    ]);
-    var n = 6;
-
-    // Create a buffer object
-    var vertexColorBuffer = gl.createBuffer();
-    if (!vertexColorBuffer) {
-        console.log('Failed to create the buffer object');
-        return false;
-    }
-
-    // Bind the buffer object to target
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
-
-    var FSIZE = verticesColors.BYTES_PER_ELEMENT;
-    //Get the storage location of a_Position, assign and enable buffer
-    var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
-    if (a_Position < 0) {
-        console.log('Failed to get the storage location of a_Position');
-        return -1;
-    }
-    gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 6, 0);
-    gl.enableVertexAttribArray(a_Position);  // Enable the assignment of the buffer object
-
-    // Get the storage location of a_Position, assign buffer and enable
-    var a_Color = gl.getAttribLocation(gl.program, 'a_Color');
-    if(a_Color < 0) {
-        console.log('Failed to get the storage location of a_Color');
-        return -1;
-    }
-    gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
-    gl.enableVertexAttribArray(a_Color);  // Enable the assignment of the buffer object
-
-    // Unbind the buffer object
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-    return n;
-}
-
 var g_matrixStack = []; // Array for storing a matrix
 function pushMatrix(m) { // Store the specified matrix to the array
     var m2 = new Matrix4(m);
@@ -251,26 +192,14 @@ function popMatrix() { // Retrieve the matrix from the array
     return g_matrixStack.pop();
 }
 
-function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
-
+function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.uniform1i(u_isLighting, false); // Will not apply lighting
-
-    // Set the vertex coordinates and color (for the x, y axes)
-    var n = initAxesVertexBuffers(gl);
-    if (n < 0) {
-        console.log('Failed to set the vertex information');
-        return;
-    }
 
     // Calculate the view matrix and the projection matrix
     modelMatrix.setTranslate(0, 0, 0);  // No Translation
     // Pass the model matrix to the uniform variable
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-
-    // Draw x and y axes
-    gl.drawArrays(gl.LINES, 0, n);
 
     gl.uniform1i(u_isLighting, true); // Will apply lighting
 
@@ -286,6 +215,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
         gl: gl,
         u_ModelMatrix: u_ModelMatrix,
         u_NormalMatrix: u_NormalMatrix,
+        u_Color: u_Color,
         n: n
     };
 
@@ -297,6 +227,9 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting) {
 }
 
 function drawChair(drawBoxInfo, x, y, z) {
+    // Set the seat colour to green
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0, 1, 0, 1]);
+
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y, z);  // Translation
 
@@ -313,6 +246,9 @@ function drawChair(drawBoxInfo, x, y, z) {
     drawbox(drawBoxInfo);
     modelMatrix = popMatrix();
 
+    // Set the leg colour to dark grey
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.9, 0.9, 0.9, 1]);
+
     // Model legs
     // Do this in a loop
     // Array is a bunch of x/y multiplicative offsets
@@ -321,7 +257,7 @@ function drawChair(drawBoxInfo, x, y, z) {
     for (var i = 0; i < legOffsets.length; i += 2)
     {
         pushMatrix(modelMatrix);
-        modelMatrix.translate(0.8 * legOffsets[i], -1, 0.8 * legOffsets[i + 1]);  // Translation
+        modelMatrix.translate(0.8 * legOffsets[i], -1.15, 0.8 * legOffsets[i + 1]);  // Translation
         modelMatrix.scale(0.4, 2.0, 0.4); // Scale
         drawbox(drawBoxInfo);
         modelMatrix = popMatrix();
