@@ -18,6 +18,8 @@ var camera = {
     altitude: 0
 };
 
+var frameTimeLabel;
+
 // User interaction
 var isMouseDown = false;
 document.onmousedown = function() { isMouseDown = true };
@@ -27,6 +29,9 @@ function main() {
     // Retrieve <canvas> element
     var canvas = document.getElementById('webgl');
     camera.aspectRatio = canvas.width/canvas.height;
+
+    // Retrieve frametime
+    frameTimeLabel = document.getElementById("frametime");
 
     // Get the rendering context for WebGL
     var gl = getWebGLContext(canvas);
@@ -311,6 +316,9 @@ function popMatrix() { // Retrieve the matrix from the array
 }
 
 function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
+    // Start timer
+    var startTime = performance.now();
+
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -358,6 +366,11 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
         drawRow(drawBoxInfo, 9, 0, i * 8);
         drawRow(drawBoxInfo, -9, 0, i * 8);
     }
+
+    // End timer and update
+    var renderTime = performance.now() - startTime;
+    renderTime = renderTime.toFixed(3);
+    frameTimeLabel.innerText = "Frame time: " + renderTime + " ms";
 }
 
 function drawRow(drawBoxInfo, x, y, z) {
