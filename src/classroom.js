@@ -467,8 +467,6 @@ function drawBox(drawBoxInfo) {
     var u_NormalMatrix = drawBoxInfo.u_NormalMatrix;
     var num_vertices = drawBoxInfo.n;
 
-    pushMatrix(modelMatrix);
-
     // Pass the model matrix to the uniform variable
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 
@@ -479,8 +477,6 @@ function drawBox(drawBoxInfo) {
 
     // Draw the cube
     gl.drawElements(gl.TRIANGLES, num_vertices, gl.UNSIGNED_BYTE, 0);
-
-    modelMatrix = popMatrix();
 }
 
 function degToRad(degree) {
