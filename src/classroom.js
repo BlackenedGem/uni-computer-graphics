@@ -315,6 +315,10 @@ function popMatrix() { // Retrieve the matrix from the array
     return g_matrixStack.pop();
 }
 
+function topMatrix() {
+    return g_matrixStack[g_matrixStack.length - 1]
+}
+
 function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     // Start timer
     var startTime = performance.now();
@@ -379,14 +383,24 @@ function drawClassroomSides(drawBoxInfo) {
     drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [1, 1, 1, 1]);
 
     pushMatrix(modelMatrix);
-    modelMatrix.translate(0, -0.5, 14);  // Translation to the 'middle' of the room
+    modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
+
+    // Save the matrix in the middle of the floor
+    pushMatrix(modelMatrix);
 
     // Model the floor
-    pushMatrix(modelMatrix);
+    modelMatrix.translate(0, -0.5, 0);
     modelMatrix.scale(40.0, 1, 40.0); // Scale
     drawBox(drawBoxInfo);
-    modelMatrix = popMatrix();
 
+    // Model the back wall
+    modelMatrix = topMatrix();
+    modelMatrix.translate(-5, 20, 0);
+    modelMatrix.scale(40, 30, 1); // Scale
+    drawBox(drawBoxInfo);
+
+    // Return back to origin
+    popMatrix();
     modelMatrix = popMatrix();
 }
 
