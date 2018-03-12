@@ -322,12 +322,10 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    positionCamera(gl);
-
+    positionCamera(gl); // Position camera using the global camera object
     gl.uniform1i(u_isLighting, false); // Will not apply lighting
 
     // Set the vertex coordinates and color (for the x, y axes)
-
     var n = initAxesVertexBuffers(gl);
     if (n < 0) {
         console.log('Failed to set the vertex information');
@@ -361,6 +359,9 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
         n: n
     };
 
+    // Draw walls and floor
+    drawClassroomSides(drawBoxInfo);
+
     // Draw 3 rows of chairs/tables
     for (var i = 0; i < 3; i++) {
         drawRow(drawBoxInfo, 9, 0, i * 8);
@@ -371,6 +372,22 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     var renderTime = performance.now() - startTime;
     renderTime = renderTime.toFixed(3);
     frameTimeLabel.innerText = "Frame time: " + renderTime + " ms";
+}
+
+function drawClassroomSides(drawBoxInfo) {
+    // Set the colour to white
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [1, 1, 1, 1]);
+
+    pushMatrix(modelMatrix);
+    modelMatrix.translate(0, -0.5, 14);  // Translation to the 'middle' of the room
+
+    // Model the floor
+    pushMatrix(modelMatrix);
+    modelMatrix.scale(40.0, 1, 40.0); // Scale
+    drawBox(drawBoxInfo);
+    modelMatrix = popMatrix();
+
+    modelMatrix = popMatrix();
 }
 
 function drawRow(drawBoxInfo, x, y, z) {
