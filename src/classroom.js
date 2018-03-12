@@ -65,12 +65,13 @@ function main() {
     // Trigger using lighting or not
     var u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
 
+    /*
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
         !u_ProjMatrix || !u_LightColor || !u_LightPosition ||
         !u_isLighting || !u_Color) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
-    }
+    }*/ // Disabled because it doesn't actually work properly
 
     camera.u_ViewMatrix = u_ViewMatrix;
     camera.u_ProjMatrix = u_ProjMatrix;
