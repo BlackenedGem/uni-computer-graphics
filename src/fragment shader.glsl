@@ -40,7 +40,7 @@ void main() {
         // Dot product of light direction and normal
         float nDotL = max(dot(lightDirection, v_Normal), 0.0);
 
-        float lightDistance = length(lightPosition - v_Position) / 15.0; // TODO remove magic constant, make configurable
+        float lightDistance = length(lightPosition - v_Position) / u_LightSources[i].a;
         lightDistance = min(1.0, 1.0 / pow(lightDistance, 2.0)); // Use an inverse square law
 
         spotLightIntensity += nDotL * lightDistance;

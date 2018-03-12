@@ -186,8 +186,8 @@ function positionCamera(gl) {
 
 function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled) {
     var lightSources = new Float32Array([   // Coordinates
-        10.0, 20.0, 10.0, 15.0,
-        -10.0, 20.0, 10.0, 15.0
+        10.0, 20.0, 5.0, 15.0,
+        -10.0, 10.0, 25.0, 10.0
     ]);
 
     var lightEnabled = [true, true];
