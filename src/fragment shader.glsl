@@ -9,8 +9,9 @@ uniform vec4 u_Color;
 uniform bool u_isLighting;
 
 // Lighting information
-uniform vec3 u_LightColor;     // Light color
-uniform vec3 u_LightPosition;
+uniform vec3 u_LightColor; // Global light colour
+uniform vec4 u_LightSources[2]; // Info of individual lightsource (x, y, z, intensity)
+uniform bool u_LightEnabled[2]; // Whether light source is enabled or not
 
 // Varyings
 varying vec3 v_Normal;
