@@ -20,7 +20,7 @@ var camera = {
 
 var frameTimeLabel;
 
-// User interaction
+// Variable that keeps track of whether the mouse is down or not
 var isMouseDown = false;
 document.onmousedown = function() { isMouseDown = true };
 document.onmouseup   = function() { isMouseDown = false };
@@ -117,16 +117,16 @@ function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
 function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     switch (ev.keyCode) {
         case 87: // W key
-            moveCameraDownwards(-1);
+            moveCameraForwards(1);
             break;
         case 83: // S key
-            moveCameraDownwards(1);
+            moveCameraForwards(-1);
             break;
         case 40: // Up arrow key
-            moveCameraBackwards(-1);
+            moveCameraUpwards(1);
             break;
         case 38: // Down arrow key
-            moveCameraBackwards(1);
+            moveCameraUpwards(-1);
             break;
         case 39: // Right arrow key
             moveCameraSideways(-1);
@@ -141,7 +141,7 @@ function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
 }
 
-function moveCameraBackwards(amount) {
+function moveCameraForwards(amount) {
     var x_move = Math.sin(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
     var z_move = Math.cos(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
     var y_move = Math.sin(degToRad(camera.altitude));
@@ -159,7 +159,7 @@ function moveCameraSideways(amount) {
     camera.z += z_move * amount;
 }
 
-function moveCameraDownwards(amount) {
+function moveCameraUpwards(amount) {
     var x_move = Math.sin(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
     var z_move = Math.cos(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
     var y_move = Math.cos(degToRad(camera.altitude)) * -1;
