@@ -8,10 +8,6 @@
  // Varyings
  varying vec3 v_Position;
  varying vec3 v_Normal;
- varying vec4 v_Color;
-
- //uniform vec4 u_LightSources[2];
- //uniform bool u_LightEnabled[2];
 
  void main() {
    vec4 vertexPosition = u_ModelMatrix * a_Position;

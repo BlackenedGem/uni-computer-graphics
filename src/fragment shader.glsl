@@ -2,16 +2,27 @@
 precision mediump float;
 #endif
 
-uniform vec3 u_LightColor;     // Light color
-uniform vec3 u_LightPosition;
-uniform vec4 u_Color; // Color of vertex
+// Colour of the box
+uniform vec4 u_Color;
+
+// Enable/disable lighting
 uniform bool u_isLighting;
 
-varying vec4 v_Color;
+// Lighting information
+uniform vec3 u_LightColor;     // Light color
+uniform vec3 u_LightPosition;
+
+// Varyings
 varying vec3 v_Normal;
 varying vec3 v_Position;
 
 void main() {
+    // Disable lighting if flag set
+    if (!u_isLighting) {
+        gl_FragColor = u_Color;
+        return;
+    }
+
     // Calculate the light direction and make it 1.0 in length
     vec3 lightDirection = normalize(u_LightPosition - v_Position);
     // Dot product of light direction and normal
