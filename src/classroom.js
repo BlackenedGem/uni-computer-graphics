@@ -366,7 +366,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     // Draw walls and floor
     pushMatrix(modelMatrix);
     modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
-    drawClassroomSides(drawBoxInfo);
+    drawClassroomSides(drawBoxInfo, 40, 40, 30);
     modelMatrix = popMatrix();
 
     // Draw 3 rows of chairs/tables
@@ -381,7 +381,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     frameTimeLabel.innerText = "Frame time: " + renderTime + " ms";
 }
 
-function drawClassroomSides(drawBoxInfo, width, depth, heigh) {
+function drawClassroomSides(drawBoxInfo, width, depth, height) {
     // Set the colour to white
     drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [1, 1, 1, 1]);
 
@@ -390,13 +390,13 @@ function drawClassroomSides(drawBoxInfo, width, depth, heigh) {
 
     // Model the floor
     modelMatrix.translate(0, -0.5, 0);
-    modelMatrix.scale(40.0, 1, 40.0); // Scale
+    modelMatrix.scale(width, 1, depth); // Scale
     drawBox(drawBoxInfo);
 
     // Model the back wall
     modelMatrix = topMatrix();
-    modelMatrix.translate(0, 15, -19.5);
-    modelMatrix.scale(40, 30, 1); // Scale
+    modelMatrix.translate(0, height / 2, (depth / -2) + 0.5);
+    modelMatrix.scale(width, height, 1); // Scale
     drawBox(drawBoxInfo);
 
     // Return back to origin
