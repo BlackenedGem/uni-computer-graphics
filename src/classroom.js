@@ -364,7 +364,10 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     };
 
     // Draw walls and floor
+    pushMatrix(modelMatrix);
+    modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
     drawClassroomSides(drawBoxInfo);
+    modelMatrix = popMatrix();
 
     // Draw 3 rows of chairs/tables
     for (var i = 0; i < 3; i++) {
@@ -378,12 +381,9 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     frameTimeLabel.innerText = "Frame time: " + renderTime + " ms";
 }
 
-function drawClassroomSides(drawBoxInfo) {
+function drawClassroomSides(drawBoxInfo, width, depth, heigh) {
     // Set the colour to white
     drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [1, 1, 1, 1]);
-
-    pushMatrix(modelMatrix);
-    modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
 
     // Save the matrix in the middle of the floor
     pushMatrix(modelMatrix);
@@ -395,12 +395,11 @@ function drawClassroomSides(drawBoxInfo) {
 
     // Model the back wall
     modelMatrix = topMatrix();
-    modelMatrix.translate(-5, 20, 0);
+    modelMatrix.translate(0, 15, -19.5);
     modelMatrix.scale(40, 30, 1); // Scale
     drawBox(drawBoxInfo);
 
     // Return back to origin
-    popMatrix();
     modelMatrix = popMatrix();
 }
 
