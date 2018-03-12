@@ -1,0 +1,3 @@
+Performance vs doing it in basic objects (ie. boxes)
+	Chrome vs firefox
+Clipping
