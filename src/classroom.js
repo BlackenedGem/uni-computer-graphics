@@ -59,7 +59,8 @@ function main() {
     var u_NormalMatrix = gl.getUniformLocation(gl.program, 'u_NormalMatrix');
     var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
     var u_LightColor = gl.getUniformLocation(gl.program, 'u_LightColor');
-    var u_LightPosition = gl.getUniformLocation(gl.program, 'u_LightPosition');
+    var u_LightSources = gl.getUniformLocation(gl.program, 'u_LightSources');
+    var u_LightEnabled = gl.getUniformLocation(gl.program, 'u_LightEnabled');
     var u_Color = gl.getUniformLocation(gl.program, 'u_Color');
 
     // Trigger using lighting or not
@@ -78,10 +79,8 @@ function main() {
 
     // Set the light color (white)
     gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
-    // Set the light position (in the world coordinate)
-    var lightPosition = new Vector3([0, 20, 0]);
-    console.log(lightPosition);
-    gl.uniform3fv(u_LightPosition, lightPosition.elements);
+    // Set the spot light sources
+    initLightSourceUniforms(gl, u_LightSources, u_LightEnabled);
 
     positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
@@ -183,6 +182,18 @@ function positionCamera(gl) {
     // Pass the model, view, and projection matrix to the uniform variable respectively
     gl.uniformMatrix4fv(camera.u_ViewMatrix, false, viewMatrix.elements);
     gl.uniformMatrix4fv(camera.u_ProjMatrix, false, projMatrix.elements);
+}
+
+function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled) {
+    var lightSources = new Float32Array([   // Coordinates
+        10.0, 20.0, 10.0, 15.0,
+        -10.0, 20.0, 10.0, 15.0
+    ]);
+
+    var lightEnabled = [true, true];
+
+    gl.uniform4fv(u_LightSources, lightSources);
+    gl.uniform1iv(u_LightEnabled, lightEnabled);
 }
 
 function initVertexBuffers(gl) {
