@@ -13,8 +13,8 @@ var g_normalMatrix = new Matrix4();  // Coordinate transformation matrix for nor
 var camera = {
     x: 0,
     y: 10,
-    z: 30,
-    azimuth: 180,
+    z: 0,
+    azimuth: 0,
     altitude: 0
 };
 
@@ -59,14 +59,14 @@ function main() {
     var u_NormalMatrix = gl.getUniformLocation(gl.program, 'u_NormalMatrix');
     var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
     var u_LightColor = gl.getUniformLocation(gl.program, 'u_LightColor');
-    var u_LightDirection = gl.getUniformLocation(gl.program, 'u_LightDirection');
+    var u_LightPosition = gl.getUniformLocation(gl.program, 'u_LightPosition');
     var u_Color = gl.getUniformLocation(gl.program, 'u_Color');
 
     // Trigger using lighting or not
     var u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
 
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
-        !u_ProjMatrix || !u_LightColor || !u_LightDirection ||
+        !u_ProjMatrix || !u_LightColor || !u_LightPosition ||
         !u_isLighting || !u_Color) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
@@ -77,10 +77,10 @@ function main() {
 
     // Set the light color (white)
     gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
-    // Set the light direction (in the world coordinate)
-    var lightDirection = new Vector3([0.5, 3.0, 4.0]);
-    lightDirection.normalize();     // Normalize
-    gl.uniform3fv(u_LightDirection, lightDirection.elements);
+    // Set the light position (in the world coordinate)
+    var lightPosition = new Vector3([0, 20, 0]);
+    console.log(lightPosition);
+    gl.uniform3fv(u_LightPosition, lightPosition.elements);
 
     positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 

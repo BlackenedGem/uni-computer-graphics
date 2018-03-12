@@ -5,17 +5,20 @@
  uniform mat4 u_ViewMatrix;
  uniform mat4 u_ProjMatrix;
  uniform vec3 u_LightColor;     // Light color
- uniform vec3 u_LightDirection; // Light direction (in the world coordinate, normalized)
+ uniform vec3 u_LightPosition;
  uniform vec4 u_Color; // Color of vertex
  varying vec4 v_Color;
  uniform bool u_isLighting;
 
  void main() {
-   gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;
+   vec4 vertexPosition = u_ModelMatrix * a_Position;
+   gl_Position = u_ProjMatrix * u_ViewMatrix * vertexPosition;
    if(u_isLighting)
    {
+      vec3 lightDirection = normalize(u_LightPosition - vec3(vertexPosition));
       vec3 normal = normalize((u_NormalMatrix * a_Normal).xyz);
-      float nDotL = max(dot(normal, u_LightDirection), 0.0);
+      float nDotL = max(dot(lightDirection, normal), 0.0);
+
         // Calculate the color due to diffuse reflection
       vec3 diffuse = u_LightColor * u_Color.rgb * nDotL;
       v_Color = vec4(diffuse, u_Color.a);   }
