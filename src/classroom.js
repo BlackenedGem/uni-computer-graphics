@@ -398,6 +398,9 @@ function drawClassroomSides(drawBoxInfo, width, depth, height) {
     modelMatrix.translate(0, height / 2, (depth / -2) + 0.5);
     modelMatrix.scale(width, height, 1); // Scale
     drawBox(drawBoxInfo);
+    // Model the front wall
+    modelMatrix.translate(0, 0, depth - 1);
+    drawBox(drawBoxInfo);
 
     // Return back to origin
     modelMatrix = popMatrix();
