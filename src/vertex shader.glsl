@@ -19,8 +19,11 @@
       vec3 normal = normalize((u_NormalMatrix * a_Normal).xyz);
       float nDotL = max(dot(lightDirection, normal), 0.0);
 
+      float lightDistance = length(u_LightPosition - vec3(vertexPosition)) / 15.0;
+      lightDistance = min(1.0, 1.0 / pow(lightDistance, 2.0)); // Use an inverse square law
+
         // Calculate the color due to diffuse reflection
-      vec3 diffuse = u_LightColor * u_Color.rgb * nDotL;
+      vec3 diffuse = u_LightColor * u_Color.rgb * nDotL * lightDistance;
       v_Color = vec4(diffuse, u_Color.a);   }
    else
    {
