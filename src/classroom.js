@@ -48,7 +48,7 @@ function main() {
     }
 
     // Set clear color and enable hidden surface removal
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.788, 0.867, 1, 1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -458,20 +458,27 @@ function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, heightFrom
     }
 
     // Blueish Windows with alpha value
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.788, 0.867, 1, 0.6]);
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.788, 0.867, 1, 0.3]);
     var windowHeight = height - (heightFromFloor + heightFromTop);
     var windowCentreWidth = (dividerWidth + windowWidth) / 2;
     var windowCentreHeight = heightFromFloor + (windowHeight / 2);
 
-    // Create the two windows iteratively
-    for (var i = -1; i <= 1; i += 2) {
-        modelMatrix = topMatrix();
-        modelMatrix.translate(0, windowCentreHeight, i * windowCentreWidth);
-        modelMatrix.scale(1, windowHeight, windowWidth);
-        drawBox(drawBoxInfo);
-    }
+    // Create the two windows
+    modelMatrix = topMatrix();
+    drawWindow(drawBoxInfo, windowWidth, windowHeight, windowCentreHeight, windowCentreWidth);
+    drawWindow(drawBoxInfo, windowWidth, windowHeight, windowCentreHeight, -windowCentreWidth);
 
     popMatrix();
+}
+
+function drawWindow(drawBoxInfo, width, height, y, z) {
+    pushMatrix(modelMatrix);
+
+    modelMatrix.translate(0, y, z);
+    modelMatrix.scale(1, height, width);
+    drawBox(drawBoxInfo);
+
+    modelMatrix = popMatrix();
 }
 
 function drawRow(drawBoxInfo, x, y, z) {
