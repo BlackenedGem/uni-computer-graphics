@@ -422,8 +422,30 @@ function drawClassroomSides(drawBoxInfo, width, depth, height) {
     modelMatrix.scale(1, height, depth);
     drawBox(drawBoxInfo);
 
+    modelMatrix = topMatrix();
+    modelMatrix.translate((width / 2) - 0.5, 0, 0);
+    drawWallWithWindows(drawBoxInfo, depth, height, 10, 20);
+
     // Return back to origin
     modelMatrix = popMatrix();
+}
+
+function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, windowHeight) {
+    var heightFromFloor = (height - windowHeight) / 2;
+
+    pushMatrix(modelMatrix);
+
+    // Top and bottom sections
+    modelMatrix.translate(0, heightFromFloor / 2, 0);
+    modelMatrix.scale(1, heightFromFloor, depth);
+    drawBox(drawBoxInfo);
+
+    modelMatrix = topMatrix();
+    modelMatrix.translate(0, height - (heightFromFloor / 2), 0);
+    modelMatrix.scale(1, heightFromFloor, depth);
+    drawBox(drawBoxInfo);
+
+    popMatrix();
 }
 
 function drawRow(drawBoxInfo, x, y, z) {
