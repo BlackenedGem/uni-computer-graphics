@@ -128,6 +128,7 @@ function main() {
         mouse(ev);
     };
 
+    doorAngleInput.value = 0;
     doorAngleInput.oninput = function() {
         doorAngle = doorAngleInput.value;
     };
