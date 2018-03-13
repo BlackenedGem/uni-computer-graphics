@@ -380,7 +380,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     // Draw walls and floor
     pushMatrix(modelMatrix);
     modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
-    drawClassroomSides(drawBoxInfo, 40, 40, 30);
+    drawClassroomSides(drawBoxInfo, 40, 40, 20);
     modelMatrix = popMatrix();
 
     // Draw 3 rows of chairs/tables
@@ -424,15 +424,13 @@ function drawClassroomSides(drawBoxInfo, width, depth, height) {
 
     modelMatrix = topMatrix();
     modelMatrix.translate((width / 2) - 0.5, 0, 0);
-    drawWallWithWindows(drawBoxInfo, depth, height, 10, 20);
+    drawWallWithWindows(drawBoxInfo, depth, height, 10, 5, 2);
 
     // Return back to origin
     modelMatrix = popMatrix();
 }
 
-function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, windowHeight) {
-    var heightFromFloor = (height - windowHeight) / 2;
-
+function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, heightFromFloor, heightFromTop) {
     pushMatrix(modelMatrix);
 
     // Top and bottom sections
@@ -441,8 +439,8 @@ function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, windowHeig
     drawBox(drawBoxInfo);
 
     modelMatrix = topMatrix();
-    modelMatrix.translate(0, height - (heightFromFloor / 2), 0);
-    modelMatrix.scale(1, heightFromFloor, depth);
+    modelMatrix.translate(0, height - (heightFromTop / 2), 0);
+    modelMatrix.scale(1, heightFromTop, depth);
     drawBox(drawBoxInfo);
 
     popMatrix();
