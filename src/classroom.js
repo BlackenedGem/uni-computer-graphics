@@ -59,15 +59,11 @@ key = {
 var drawInfo;
 
 function main() {
-    // Retrieve <canvas> element
-    var canvas = document.getElementById('webgl');
-    camera.aspectRatio = canvas.width/canvas.height;
-
     // Retrieve frametime
     frameTimeLabel = document.getElementById("frametime");
 
     // Get the rendering context for WebGL
-    var gl = getWebGLContext(canvas);
+    var gl = getWebGLContext(webglCanvas);
     if (!gl) {
         console.log('Failed to get the rendering context for WebGL');
         return;
@@ -144,6 +140,13 @@ function main() {
 
     draw();
 }
+
+function resize() {
+    webglCanvas.width = window.innerWidth;
+    webglCanvas.height = window.innerHeight;
+    camera.aspectRatio = webglCanvas.width / webglCanvas.height;
+}
+window.addEventListener('resize', resize, false); resize();
 
 function mouse(ev) {
     if (!isMouseDown || !isCanvasSelected) {
