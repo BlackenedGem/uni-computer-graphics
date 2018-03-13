@@ -50,6 +50,8 @@ function main() {
     // Set clear color and enable hidden surface removal
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -179,7 +181,7 @@ function positionCamera(gl) {
 
     // Calculate the view matrix and the projection matrix
     viewMatrix.setLookAt(camera.x, camera.y, camera.z, camera.x + x_at_off, camera.y + y_at_off, camera.z + z_at_off, 0, 1, 0);
-    projMatrix.setPerspective(camera.fov, camera.aspectRatio, 0.1, 1000);
+    projMatrix.setPerspective(camera.fov, camera.aspectRatio, 0.1, 100);
 
     // Pass the model, view, and projection matrix to the uniform variable respectively
     gl.uniformMatrix4fv(camera.u_ViewMatrix, false, viewMatrix.elements);
@@ -455,8 +457,8 @@ function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, heightFrom
         drawBox(drawBoxInfo);
     }
 
-    // Blue Windows with alpha value
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0, 0, 1, 1]);
+    // Blueish Windows with alpha value
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.788, 0.867, 1, 0.6]);
     var windowHeight = height - (heightFromFloor + heightFromTop);
     var windowCentreWidth = (dividerWidth + windowWidth) / 2;
     var windowCentreHeight = heightFromFloor + (windowHeight / 2);
