@@ -447,10 +447,25 @@ function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, heightFrom
     var dividerWidth = (depth - (windowWidth * 2)) / 3;
     var dividerTranslate = (depth / 2) - (dividerWidth / 2);
 
+    // Create the three diviers iteratively
     for (var i = -1; i <= 1; i++) {
         modelMatrix = topMatrix();
         modelMatrix.translate(0, height / 2, i * dividerTranslate);
         modelMatrix.scale(1, height, dividerWidth);
+        drawBox(drawBoxInfo);
+    }
+
+    // Blue Windows with alpha value
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0, 0, 1, 1]);
+    var windowHeight = height - (heightFromFloor + heightFromTop);
+    var windowCentreWidth = (dividerWidth + windowWidth) / 2;
+    var windowCentreHeight = heightFromFloor + (windowHeight / 2);
+
+    // Create the two windows iteratively
+    for (var i = -1; i <= 1; i += 2) {
+        modelMatrix = topMatrix();
+        modelMatrix.translate(0, windowCentreHeight, i * windowCentreWidth);
+        modelMatrix.scale(1, windowHeight, windowWidth);
         drawBox(drawBoxInfo);
     }
 
