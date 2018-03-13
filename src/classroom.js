@@ -28,6 +28,9 @@ for (var i = 1; i <= 50; i++) {
 var nextFrame = 0;
 var frameTimeLabel;
 
+// Variables to keep track of dynamic objects
+var doorAngle = 0;
+
 // Variable that keeps track of whether the mouse is down or not
 var isMouseDown = false;
 document.onmousedown = function() { isMouseDown = true };
@@ -110,11 +113,11 @@ function main() {
     positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
     document.onkeydown = function(ev){
-        keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
+        keydown(ev);
     };
 
     document.onmousemove = function(ev) {
-        mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
+        mouse(ev);
     };
 
     // Reduce parameters when calling drawBox by storing in an object
@@ -129,7 +132,7 @@ function main() {
     draw();
 }
 
-function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
+function mouse(ev) {
     if (!isMouseDown) {
         return;
     }
@@ -146,7 +149,7 @@ function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     }
 }
 
-function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
+function keydown(ev) {
     switch (ev.keyCode) {
         case key.W:
             moveCameraForwards(1);
@@ -220,7 +223,7 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled) {
         -10.0, 10.0, 25.0, 10.0
     ]);
 
-    var lightEnabled = [true, true];
+    var lightEnabled = [true, false];
 
     gl.uniform4fv(u_LightSources, lightSources);
     gl.uniform1iv(u_LightEnabled, lightEnabled);
@@ -417,11 +420,32 @@ function draw() {
     // Draw desk at front
     drawFrontDesk(drawInfo, 10.5, 0, 26.5);
 
+    // Draw door
+    drawDoor(drawInfo, 0, 0, 20);
+
     // End timer and update
     updateFPS(performance.now() - startTime);
 
     // Make it so that draw is called again when needed
     window.requestAnimationFrame(draw);
+}
+
+function drawDoor(drawInfo, x, y, z) {
+    var depth = 1;
+    var width = 5;
+    var height = 12;
+
+    // Set the seat colour to brown
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0, 0, 0, 1]);
+
+    pushMatrix(modelMatrix);
+    modelMatrix.translate(x, y, z); // Translation
+    modelMatrix.rotate(-doorAngle, 0, 1, 0);
+    modelMatrix.translate(depth / -2, height / 2, width / -2);
+
+    modelMatrix.scale(depth, height, width); // Scale
+    drawBox(drawInfo);
+    modelMatrix = popMatrix();
 }
 
 function drawFrontDesk(drawInfo, x, y, z) {
@@ -430,7 +454,7 @@ function drawFrontDesk(drawInfo, x, y, z) {
 
     drawTable(drawInfo, 0, 0, 0, 9, [0.788, 0.776, 1, 1]); // Light blue
 
-    modelMatrix.translate(2, 0, 5);
+    modelMatrix.translate(2, 0, 4);
     modelMatrix.rotate(235, 0, 1, 0);
     drawChair(drawInfo, 0, 0, 0, [0.878, 0.165, 0.165, 1]); // Red
 
