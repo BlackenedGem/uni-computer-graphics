@@ -391,10 +391,22 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
         drawRow(drawBoxInfo, -9, 0, i * 8);
     }
 
+    // Draw desk at front
+    drawFrontDesk(drawBoxInfo, 12, 0, 30);
+
     // End timer and update
     var renderTime = performance.now() - startTime;
     renderTime = renderTime.toFixed(3);
     frameTimeLabel.innerText = "Frame time: " + renderTime + " ms";
+}
+
+function drawFrontDesk(drawBoxInfo, x, y, z) {
+    pushMatrix(modelMatrix);
+    modelMatrix.translate(x, y, z);
+
+    drawTable(drawBoxInfo, 0, 0, 0);
+
+    modelMatrix = popMatrix();
 }
 
 function drawClassroomSides(drawBoxInfo, width, depth, height) {
@@ -527,16 +539,24 @@ function drawRow(drawBoxInfo, x, y, z) {
     modelMatrix = popMatrix();
 }
 
-function drawTable(drawBoxInfo, x, y, z) {
+function drawTable(drawBoxInfo, x, y, z, colour, width) {
+    // Default values
+    if (!colour) {
+        colour = [0.824, 0.706, 0.549, 1];
+    }
+    if (!width) {
+        width = 6;
+    }
+
     // Set the table colour to a browny colour
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.824, 0.706, 0.549, 1]);
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, colour);
 
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y + 3.25, z);  // Translation
 
-    // Model the chair seat
+    // Model the table top
     pushMatrix(modelMatrix);
-    modelMatrix.scale(6, 0.3, 3.0); // Scale
+    modelMatrix.scale(width, 0.3, 3.0); // Scale
     drawBox(drawBoxInfo);
     modelMatrix = popMatrix();
 
@@ -547,11 +567,11 @@ function drawTable(drawBoxInfo, x, y, z) {
     // Do this in a loop
     // Array is a bunch of x/y multiplicative offsets
     var legOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
+    var widthOffset = (width / 2) - 0.25;
 
-    for (var i = 0; i < legOffsets.length; i += 2)
-    {
+    for (var i = 0; i < legOffsets.length; i += 2) {
         pushMatrix(modelMatrix);
-        modelMatrix.translate(2.75 * legOffsets[i], -1.7, 1.25 * legOffsets[i + 1]);  // Translation
+        modelMatrix.translate(widthOffset * legOffsets[i], -1.7, 1.25 * legOffsets[i + 1]);  // Translation
         modelMatrix.scale(0.4, 3.1, 0.4); // Scale
         drawBox(drawBoxInfo);
         modelMatrix = popMatrix();
