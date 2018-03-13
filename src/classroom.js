@@ -424,6 +424,7 @@ function draw() {
     // Draw walls and floor
     pushMatrix(modelMatrix);
     modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
+    drawCeiling(drawInfo, 40, 40, 18);
     drawClassroomSides(drawInfo, 40, 40, 18);
     modelMatrix = popMatrix();
 
@@ -484,6 +485,36 @@ function drawFrontDesk(drawInfo, x, y, z) {
     modelMatrix.translate(2, 0, 4);
     modelMatrix.rotate(235, 0, 1, 0);
     drawChair(drawInfo, 0, 0, 0, [0.878, 0.165, 0.165, 1]); // Red
+
+    modelMatrix = popMatrix();
+}
+
+function drawCeiling(drawInfo, width, depth, height) {
+    // Set the colour to white
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 1, 1, 1]);
+
+    // Save the matrix in the middle of the floor
+    pushMatrix(modelMatrix);
+
+    // Model the floor
+    modelMatrix.translate(0, height + 0.5, 0);
+    modelMatrix.scale(width, 1, depth); // Scale
+    drawBox(drawInfo);
+
+    // Model lights
+    // Do this in a loop
+    // Array is a bunch of x/y multiplicative offsets
+    var lightOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
+
+    var lightOffsetX = (width / 4);
+    var lightOffsetZ = (height / 4);
+
+    for (var i = 0; i < lightOffsets.length; i += 2) {
+        modelMatrix = topMatrix();
+        modelMatrix.translate(lightOffsetX * lightOffsets[i], height - 1, lightOffsetZ * lightOffsets[i + 1]);  // Translation
+        modelMatrix.scale(2.5, 1.0, 2.5); // Scale
+        drawBox(drawInfo);
+    }
 
     modelMatrix = popMatrix();
 }
