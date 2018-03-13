@@ -19,6 +19,13 @@ var camera = {
     altitude: 0
 };
 
+// Variables to track frame time/fps
+// Array of last X frame times (ms), use nextFrame to determine which one to replace
+var frameTimes = [];
+for (var i = 1; i <= 50; i++) {
+    frameTimes[i] = 0;
+}
+var nextFrame = 0;
 var frameTimeLabel;
 
 // Variable that keeps track of whether the mouse is down or not
@@ -411,9 +418,7 @@ function draw() {
     drawFrontDesk(drawInfo, 10.5, 0, 26.5);
 
     // End timer and update
-    var renderTime = performance.now() - startTime;
-    renderTime = renderTime.toFixed(3);
-    frameTimeLabel.innerText = "Frame time: " + renderTime + " ms";
+    updateFPS(performance.now() - startTime);
 
     // Make it so that draw is called again when needed
     window.requestAnimationFrame(draw);
@@ -663,6 +668,30 @@ function drawBox(drawInfo) {
 
     // Draw the cube
     gl.drawElements(gl.TRIANGLES, num_vertices, gl.UNSIGNED_BYTE, 0);
+}
+
+function updateFPS(renderTime) {
+    frameTimes[nextFrame] = renderTime;
+    nextFrame++;
+
+    // Reset and update
+    if (nextFrame >= frameTimes.length) {
+        nextFrame = 0;
+
+        var totTime = sumArray(frameTimes);
+        var fps = (1000.0 * frameTimes.length) / totTime;
+
+        frameTimeLabel.innerText = "Avg. FPS: " + fps.toFixed(1);
+    }
+}
+
+function sumArray(array) {
+    var sum = 0;
+    for (var i = 0; i < array.length; i++) {
+        sum += array[i];
+    }
+
+    return sum;
 }
 
 function degToRad(degree) {
