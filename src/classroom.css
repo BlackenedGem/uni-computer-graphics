@@ -18,6 +18,11 @@ p {
     padding: 2px 0 2px;
 }
 
+h3 {
+    margin: 2px 0 2px;
+    padding: 2px 0 2px;
+}
+
 #topleft {
     top: 20px;
     left: 20px;
@@ -58,4 +63,8 @@ html, body {
     opacity: 0.7;
     -webkit-transition: .2s;
     transition: opacity .2s;
+}
+
+.space {
+    padding: 3px;
 }
