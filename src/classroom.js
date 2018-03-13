@@ -30,24 +30,18 @@ var frameTimeLabel;
 
 // Variables to keep track of dynamic objects
 var doorAngle = 0;
+var lightsEnabled = [true, true, true, true];
 
 // HTML objects
-var webglCanvas = document.getElementById("webgl");
-var doorAngleInput = document.getElementById("doorAngleInput");
+var webglCanvas;
+var doorAngleInput;
+var interfaceTopLeft;
+var interfaceTopRight;
 
-var interfaceTopLeft = document.getElementById("topleft");
-var interfaceTopRight = document.getElementById("topright");
-
-// Variable that keeps track of the mouses status
+// Variable that keeps track of the mouse/canvas status
 var isMouseDown = false;
-document.onmousedown = function() { isMouseDown = true };
-document.onmouseup   = function() { isMouseDown = false };
-
-// We only want to move the canvas when it is selected
 var isCanvasSelected = false;
-webglCanvas.onmousedown = function() { isCanvasSelected = true; };
-interfaceTopLeft.onmousedown = function() { isCanvasSelected = false; };
-interfaceTopRight.onmousedown = function() { isCanvasSelected = false; };
+
 
 // Enums for key
 key = {
@@ -64,9 +58,41 @@ key = {
 // Variable to store GL information and matrices to avoid constant parameter passing
 var drawInfo;
 
-function main() {
-    // Retrieve frametime
+function htmlSetup() {
+    // Retrieve objects
     frameTimeLabel = document.getElementById("frametime");
+
+    webglCanvas = document.getElementById("webgl");
+    doorAngleInput = document.getElementById("doorAngleInput");
+
+    interfaceTopLeft = document.getElementById("topleft");
+    interfaceTopRight = document.getElementById("topright");
+
+    // Setup functions
+    document.onmousedown = function() { isMouseDown = true };
+    document.onmouseup   = function() { isMouseDown = false };
+
+    webglCanvas.onmousedown = function() { isCanvasSelected = true; };
+    interfaceTopLeft.onmousedown = function() { isCanvasSelected = false; };
+    interfaceTopRight.onmousedown = function() { isCanvasSelected = false; };
+
+    // Handle user input
+    document.onkeydown = function(ev){
+        keydown(ev);
+    };
+
+    document.onmousemove = function(ev) {
+        mouse(ev);
+    };
+
+    doorAngleInput.value = 0;
+    doorAngleInput.oninput = function() {
+        doorAngle = doorAngleInput.value;
+    };
+}
+
+function main() {
+    htmlSetup();
 
     // Get the rendering context for WebGL
     var gl = getWebGLContext(webglCanvas);
@@ -123,27 +149,14 @@ function main() {
 
     positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
-    // Handle user input
-    document.onkeydown = function(ev){
-        keydown(ev);
-    };
-
-    document.onmousemove = function(ev) {
-        mouse(ev);
-    };
-
-    doorAngleInput.value = 0;
-    doorAngleInput.oninput = function() {
-        doorAngle = doorAngleInput.value;
-    };
-
     // Reduce parameters when calling drawBox by storing in an object
     drawInfo = {
         gl: gl,
         u_ModelMatrix: u_ModelMatrix,
         u_NormalMatrix: u_NormalMatrix,
         u_Color: u_Color,
-        u_isLighting: u_isLighting
+        u_isLighting: u_isLighting,
+        u_LightEnabled: u_LightEnabled
     };
 
     draw();
@@ -256,7 +269,7 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightInte
        5.0, 0.0
     ]);
 
-    var lightEnabled = [true, true, true, true];
+    lightsEnabled = [true, true, true, true];
     var lightType = [true, true, true, true];
 
     gl.uniform3fv(u_LightSources, lightSources);
