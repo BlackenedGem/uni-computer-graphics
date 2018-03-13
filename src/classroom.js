@@ -97,7 +97,9 @@ function main() {
     var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
     var u_LightColor = gl.getUniformLocation(gl.program, 'u_LightColor');
     var u_LightSources = gl.getUniformLocation(gl.program, 'u_LightSources');
+    var u_LightIntensity = gl.getUniformLocation(gl.program, 'u_LightIntensity');
     var u_LightEnabled = gl.getUniformLocation(gl.program, 'u_LightEnabled');
+    var u_LightType = gl.getUniformLocation(gl.program, 'u_LightType');
     var u_Color = gl.getUniformLocation(gl.program, 'u_Color');
 
     // Trigger using lighting or not
@@ -117,7 +119,7 @@ function main() {
     // Set the light color (white)
     gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
     // Set the spot light sources
-    initLightSourceUniforms(gl, u_LightSources, u_LightEnabled);
+    initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightIntensity, u_LightType);
 
     positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
@@ -239,18 +241,28 @@ function positionCamera(gl) {
     gl.uniformMatrix4fv(camera.u_ProjMatrix, false, projMatrix.elements);
 }
 
-function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled) {
+function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightIntensity, u_LightType) {
     var lightSources = new Float32Array([   // Coordinates
-        10.0, 16.0, 24.0, 5.0,
-        -10.0, 16.0, 24.0, 5.0,
-        -10.0, 16.0, 4.0, 5.0,
-        10.0, 16.0, 4.0, 5.0
+        10.0, 16.0, 24.0,
+        -10.0, 16.0, 24.0,
+        -10.0, 16.0, 4.0,
+        10.0, 16.0, 4.0
+    ]);
+
+    var lightIntensities = new Float32Array([
+       5.0, 0.0,
+       5.0, 0.0,
+       5.0, 0.0,
+       5.0, 0.0
     ]);
 
     var lightEnabled = [true, true, true, true];
+    var lightType = [true, true, true, true];
 
-    gl.uniform4fv(u_LightSources, lightSources);
+    gl.uniform3fv(u_LightSources, lightSources);
+    gl.uniform2fv(u_LightIntensity, lightIntensities);
     gl.uniform1iv(u_LightEnabled, lightEnabled);
+    gl.uniform1iv(u_LightType, lightType);
 }
 
 function initVertexBuffers(gl) {

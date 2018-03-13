@@ -11,7 +11,8 @@ uniform bool u_isLighting;
 // Lighting information
 uniform vec3 u_LightColor; // Global light colour
 const int numLights = 4;
-uniform vec4 u_LightSources[numLights]; // Info of individual lightsource. Either position or direction (x, y, z)
+uniform vec3 u_LightSources[numLights]; // Info of individual lightsource. Either position or direction (x, y, z)
+uniform vec2 u_LightIntensity[numLights]; // Intensity of light. For spot light contains drop off factor
 uniform bool u_LightType[numLights]; // Whether light source is spot or directional
 uniform bool u_LightEnabled[numLights]; // Whether light source is enabled or not
 
@@ -34,17 +35,26 @@ void main() {
             continue;
         }
 
-        vec3 lightPosition = vec3(u_LightSources[i]);
+        float lightStrength = u_LightIntensity[i].x;
 
-        // Calculate the light direction and make it 1.0 in length
-        vec3 lightDirection = normalize(lightPosition - v_Position);
-        // Dot product of light direction and normal
-        float nDotL = max(dot(lightDirection, v_Normal), 0.0);
+        vec3 lightDirection;
+        if (u_LightType[i]) {
+            vec3 lightPosition = vec3(u_LightSources[i]);
+            lightDirection = normalize(u_LightSources[i] - v_Position);
 
-        float lightDistance = length(lightPosition - v_Position) / u_LightSources[i].a;
-        lightDistance = min(1.0, 1.0 / pow(lightDistance, 2.0)); // Use an inverse square law
+            // Get the light distance
+            float lightDistance = length(u_LightSources[i] - v_Position) / u_LightIntensity[i].x;
+            lightDistance = min(1.0, 1.0 / pow(lightDistance, 2.0)); // Use an inverse square law
 
-        spotLightIntensity += nDotL * lightDistance;
+            // Calculate the light direction and make it 1.0 in length
+            // Dot product of light direction and normal
+            float nDotL = max(dot(lightDirection, v_Normal), 0.0);
+            spotLightIntensity += nDotL * lightDistance;
+        } else {
+            lightDirection = u_LightSources[i];
+        }
+
+
     }
 
     vec3 diffuse = u_LightColor * u_Color.rgb * spotLightIntensity;
