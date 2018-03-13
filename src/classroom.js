@@ -123,10 +123,10 @@ function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
             moveCameraForwards(-1);
             break;
         case 40: // Up arrow key
-            moveCameraUpwards(1);
+            moveCameraUpwards(-1);
             break;
         case 38: // Down arrow key
-            moveCameraUpwards(-1);
+            moveCameraUpwards(1);
             break;
         case 39: // Right arrow key
             moveCameraSideways(-1);
@@ -160,13 +160,14 @@ function moveCameraSideways(amount) {
 }
 
 function moveCameraUpwards(amount) {
+    /* We could move the camera upwards/downwards relative to where the camera is looking, but this is not a nice effect
     var x_move = Math.sin(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
     var z_move = Math.cos(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
     var y_move = Math.cos(degToRad(camera.altitude)) * -1;
 
     camera.x += x_move * amount;
-    camera.y += y_move * amount;
-    camera.z += z_move * amount;
+    camera.z += z_move * amount; */
+    camera.y += amount;
 }
 
 // Actually position the camera with view and projection matrix
