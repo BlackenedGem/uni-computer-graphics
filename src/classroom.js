@@ -392,7 +392,7 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     }
 
     // Draw desk at front
-    drawFrontDesk(drawBoxInfo, 12, 0, 30);
+    drawFrontDesk(drawBoxInfo, 10.5, 0, 26.5);
 
     // End timer and update
     var renderTime = performance.now() - startTime;
@@ -404,7 +404,11 @@ function drawFrontDesk(drawBoxInfo, x, y, z) {
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y, z);
 
-    drawTable(drawBoxInfo, 0, 0, 0);
+    drawTable(drawBoxInfo, 0, 0, 0, 9, [0.788, 0.776, 1, 1]); // Light blue
+
+    modelMatrix.translate(2, 0, 5);
+    modelMatrix.rotate(235, 0, 1, 0);
+    drawChair(drawBoxInfo, 0, 0, 0, [0.878, 0.165, 0.165, 1]); // Red
 
     modelMatrix = popMatrix();
 }
@@ -539,16 +543,15 @@ function drawRow(drawBoxInfo, x, y, z) {
     modelMatrix = popMatrix();
 }
 
-function drawTable(drawBoxInfo, x, y, z, colour, width) {
+function drawTable(drawBoxInfo, x, y, z, width, colour) {
     // Default values
     if (!colour) {
-        colour = [0.824, 0.706, 0.549, 1];
+        colour = [0.824, 0.706, 0.549, 1]; // Browny colour
     }
     if (!width) {
         width = 6;
     }
 
-    // Set the table colour to a browny colour
     drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, colour);
 
     pushMatrix(modelMatrix);
@@ -580,9 +583,14 @@ function drawTable(drawBoxInfo, x, y, z, colour, width) {
     modelMatrix = popMatrix();
 }
 
-function drawChair(drawBoxInfo, x, y, z) {
+function drawChair(drawBoxInfo, x, y, z, colour) {
+    // Default values
+    if (!colour) {
+        colour = [0.137, 0.576, 0.278, 1]; // Green colour
+    }
+
     // Set the seat colour to green
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0, 1, 0, 1]);
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, colour);
 
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y + 2.15, z);  // Translation
@@ -643,6 +651,7 @@ function degToRad(degree) {
 }
 
 function loadLocalFile(filename) {
+    // Synchronously load a local file and return it as text
     // https://stackoverflow.com/questions/247483/http-get-request-in-javascript
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", filename, false ); // false for synchronous request
