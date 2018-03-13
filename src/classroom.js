@@ -26,6 +26,18 @@ var isMouseDown = false;
 document.onmousedown = function() { isMouseDown = true };
 document.onmouseup   = function() { isMouseDown = false };
 
+// Enums for key
+key = {
+    W: 87,
+    A: 65,
+    S: 83,
+    D: 68,
+    UP: 40,
+    DOWN: 38,
+    LEFT: 37,
+    RIGHT: 39
+};
+
 function main() {
     // Retrieve <canvas> element
     var canvas = document.getElementById('webgl');
@@ -119,29 +131,26 @@ function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
 
 function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     switch (ev.keyCode) {
-        case 87: // W key
+        case key.W:
             moveCameraForwards(1);
             break;
-        case 83: // S key
+        case key.S:
             moveCameraForwards(-1);
             break;
-        case 40: // Up arrow key
+        case key.UP:
             moveCameraUpwards(-1);
             break;
-        case 38: // Down arrow key
+        case key.DOWN:
             moveCameraUpwards(1);
             break;
-        case 39: // Right arrow key
+        case key.RIGHT:
             moveCameraSideways(-1);
             break;
-        case 37: // Left arrow key
+        case key.LEFT:
             moveCameraSideways(1);
             break;
         default: return; // Skip drawing at no effective action
     }
-
-    // Draw the scene
-    draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
 }
 
 function moveCameraForwards(amount) {
