@@ -14,6 +14,7 @@ var camera = {
     x: 0,
     y: 10,
     z: 0,
+    fov: 90,
     azimuth: 0,
     altitude: 0
 };
@@ -178,7 +179,7 @@ function positionCamera(gl) {
 
     // Calculate the view matrix and the projection matrix
     viewMatrix.setLookAt(camera.x, camera.y, camera.z, camera.x + x_at_off, camera.y + y_at_off, camera.z + z_at_off, 0, 1, 0);
-    projMatrix.setPerspective(90, camera.aspectRatio, 1, 1000);
+    projMatrix.setPerspective(camera.fov, camera.aspectRatio, 0.1, 1000);
 
     // Pass the model, view, and projection matrix to the uniform variable respectively
     gl.uniformMatrix4fv(camera.u_ViewMatrix, false, viewMatrix.elements);
@@ -187,7 +188,7 @@ function positionCamera(gl) {
 
 function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled) {
     var lightSources = new Float32Array([   // Coordinates
-        10.0, 20.0, 5.0, 15.0,
+        10.0, 20.0, 5.0, 10.0,
         -10.0, 10.0, 25.0, 10.0
     ]);
 

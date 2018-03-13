@@ -47,5 +47,6 @@ void main() {
     }
 
     vec3 diffuse = u_LightColor * u_Color.rgb * spotLightIntensity;
-    gl_FragColor = vec4(diffuse, u_Color.a);
+    vec3 ambient = 0.2 * u_Color.rgb;
+    gl_FragColor = vec4(diffuse + ambient, u_Color.a);
 }
