@@ -35,13 +35,19 @@ var doorAngle = 0;
 var webglCanvas = document.getElementById("webgl");
 var doorAngleInput = document.getElementById("doorAngleInput");
 
+var interfaceTopLeft = document.getElementById("topleft");
+var interfaceTopRight = document.getElementById("topright");
+
 // Variable that keeps track of the mouses status
 var isMouseDown = false;
 document.onmousedown = function() { isMouseDown = true };
 document.onmouseup   = function() { isMouseDown = false };
+
+// We only want to move the canvas when it is selected
 var isCanvasSelected = false;
 webglCanvas.onmousedown = function() { isCanvasSelected = true; };
-doorAngleInput.onmousedown = function() { isCanvasSelected = false; };
+interfaceTopLeft.onmousedown = function() { isCanvasSelected = false; };
+interfaceTopRight.onmousedown = function() { isCanvasSelected = false; };
 
 // Enums for key
 key = {
