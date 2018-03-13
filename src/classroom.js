@@ -220,10 +220,10 @@ function positionCamera(gl) {
 function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled) {
     var lightSources = new Float32Array([   // Coordinates
         10.0, 20.0, 5.0, 10.0,
-        -10.0, 10.0, 25.0, 10.0
+        -10.0, 20.0, 25.0, 10.0
     ]);
 
-    var lightEnabled = [true, false];
+    var lightEnabled = [true, true];
 
     gl.uniform4fv(u_LightSources, lightSources);
     gl.uniform1iv(u_LightEnabled, lightEnabled);
@@ -421,7 +421,7 @@ function draw() {
     drawFrontDesk(drawInfo, 10.5, 0, 26.5);
 
     // Draw door
-    drawDoor(drawInfo, 0, 0, 20);
+    drawDoor(drawInfo, -18, 0, 33);
 
     // End timer and update
     updateFPS(performance.now() - startTime);
