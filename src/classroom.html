@@ -13,12 +13,13 @@
         </canvas>
 
         <div class="controls" id="topleft">
-            <label>Test</label>
+            <p id="frametime">Avg. Frame Time: </p>
         </div>
-    </div>
 
-    <div class="slidecontainer" id="doorAngleInput">
-        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+        <div class="controls" id="topright">
+            <p>Door</p>
+            <input type="range" min="0" max="90" value="0" class="slider" id="doorAngleInput">
+        </div>
     </div>
 
     <script src="../lib/webgl-utils.js"></script>
@@ -26,6 +27,5 @@
     <script src="../lib/cuon-utils.js"></script>
     <script src="../lib/cuon-matrix.js"></script>
     <script src="classroom.js"></script>
-    <h2 id="frametime"></h2>
   </body>
 </html>

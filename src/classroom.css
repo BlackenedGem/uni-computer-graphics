@@ -5,10 +5,41 @@
     opacity: 0.7;
     color: white;
     font-family: "Verdana", sans-serif;
+    font-size: 12px;
     border-radius: 4px;
+}
+
+.topTopBottom {
+    position: relative;
+}
+
+p {
+    margin: 0;
+    padding: 2px 0px 2px;
 }
 
 #topleft {
     top: 20px;
     left: 20px;
+}
+
+#container {
+    position: relative;
+    width: 1000px;
+    height: 650px;
+}
+
+#topright {
+    top: 20px;
+    right: 20px;
+}
+
+.slider {
+    -webkit-appearance: none;
+    height: 15px;
+    border-radius: 0px;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
 }
