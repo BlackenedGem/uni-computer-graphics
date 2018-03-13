@@ -679,9 +679,9 @@ function updateFPS(renderTime) {
         nextFrame = 0;
 
         var totTime = sumArray(frameTimes);
-        var fps = (1000.0 * frameTimes.length) / totTime;
+        var frameTime = totTime / frameTimes.length;
 
-        frameTimeLabel.innerText = "Avg. FPS: " + fps.toFixed(1);
+        frameTimeLabel.innerText = "Avg. Frame Time: " + frameTime.toFixed(2) + "ms";
     }
 }
 
