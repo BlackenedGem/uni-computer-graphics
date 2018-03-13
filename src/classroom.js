@@ -29,15 +29,19 @@ var nextFrame = 0;
 var frameTimeLabel;
 
 // Variables to keep track of dynamic objects
-var doorAngle = 30;
+var doorAngle = 0;
+
+// HTML objects
+var webglCanvas = document.getElementById("webgl");
+var doorAngleInput = document.getElementById("doorAngleInput");
 
 // Variable that keeps track of the mouses status
 var isMouseDown = false;
 document.onmousedown = function() { isMouseDown = true };
 document.onmouseup   = function() { isMouseDown = false };
 var isCanvasSelected = false;
-document.getElementById("webgl").onmousedown = function() { isCanvasSelected = true; };
-document.getElementById("doorAngleInput").onmousedown = function() { isCanvasSelected = false; };
+webglCanvas.onmousedown = function() { isCanvasSelected = true; };
+doorAngleInput.onmousedown = function() { isCanvasSelected = false; };
 
 // Enums for key
 key = {
@@ -115,12 +119,17 @@ function main() {
 
     positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
+    // Handle user input
     document.onkeydown = function(ev){
         keydown(ev);
     };
 
     document.onmousemove = function(ev) {
         mouse(ev);
+    };
+
+    doorAngleInput.oninput = function() {
+        doorAngle = doorAngleInput.value;
     };
 
     // Reduce parameters when calling drawBox by storing in an object
