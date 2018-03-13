@@ -29,7 +29,7 @@ var nextFrame = 0;
 var frameTimeLabel;
 
 // Variables to keep track of dynamic objects
-var doorAngle = 0;
+var doorAngle = 30;
 
 // Variable that keeps track of whether the mouse is down or not
 var isMouseDown = false;
@@ -435,16 +435,27 @@ function drawDoor(drawInfo, x, y, z) {
     var width = 5;
     var height = 12;
 
-    // Set the seat colour to brown
-    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0, 0, 0, 1]);
+    // Door colour - brown
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.396, 0.263, 0.129, 1]);
 
+    // Rotation/translation
     pushMatrix(modelMatrix);
-    modelMatrix.translate(x, y, z); // Translation
+    modelMatrix.translate(x, y, z);
     modelMatrix.rotate(-doorAngle, 0, 1, 0);
-    modelMatrix.translate(depth / -2, height / 2, width / -2);
 
+    // Door piece
+    pushMatrix(modelMatrix);
+    modelMatrix.translate(depth / -2, height / 2, width / -2);
     modelMatrix.scale(depth, height, width); // Scale
     drawBox(drawInfo);
+
+    // Handle
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.573, 0.502, 0.137, 1]);
+    modelMatrix = popMatrix();
+    modelMatrix.translate(depth / -2, height / 2, - (width - 1));
+    modelMatrix.scale(depth + 0.7, 0.4, 0.4); // Scale
+    drawBox(drawInfo);
+
     modelMatrix = popMatrix();
 }
 
