@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Classroom</title>
+<head>
+      <meta charset="utf-8" />
+      <title>Classroom</title>
+      <link rel="stylesheet" href="classroom.css">
   </head>
 
   <body onload="main()">
     <canvas id="webgl" width="1000" height="650">
-    Please use a browser that supports "canvas"
+      Please use a browser that supports "canvas"
     </canvas>
+
+    <div class="slidecontainer" id="doorAngleInput">
+        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+    </div>
 
     <script src="../lib/webgl-utils.js"></script>
     <script src="../lib/webgl-debug.js"></script>

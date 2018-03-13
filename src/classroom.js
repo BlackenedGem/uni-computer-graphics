@@ -31,10 +31,13 @@ var frameTimeLabel;
 // Variables to keep track of dynamic objects
 var doorAngle = 30;
 
-// Variable that keeps track of whether the mouse is down or not
+// Variable that keeps track of the mouses status
 var isMouseDown = false;
 document.onmousedown = function() { isMouseDown = true };
 document.onmouseup   = function() { isMouseDown = false };
+var isCanvasSelected = false;
+document.getElementById("webgl").onmousedown = function() { isCanvasSelected = true; };
+document.getElementById("doorAngleInput").onmousedown = function() { isCanvasSelected = false; };
 
 // Enums for key
 key = {
@@ -133,7 +136,7 @@ function main() {
 }
 
 function mouse(ev) {
-    if (!isMouseDown) {
+    if (!isMouseDown || !isCanvasSelected) {
         return;
     }
 
