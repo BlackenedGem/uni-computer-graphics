@@ -10,8 +10,9 @@ uniform bool u_isLighting;
 
 // Lighting information
 uniform vec3 u_LightColor; // Global light colour
-const int numLights = 2;
-uniform vec4 u_LightSources[numLights]; // Info of individual lightsource (x, y, z, intensity)
+const int numLights = 4;
+uniform vec4 u_LightSources[numLights]; // Info of individual lightsource. Either position or direction (x, y, z)
+uniform bool u_LightType[numLights]; // Whether light source is spot or directional
 uniform bool u_LightEnabled[numLights]; // Whether light source is enabled or not
 
 // Varyings

@@ -241,11 +241,13 @@ function positionCamera(gl) {
 
 function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled) {
     var lightSources = new Float32Array([   // Coordinates
-        10.0, 20.0, 5.0, 10.0,
-        -10.0, 20.0, 25.0, 10.0
+        10.0, 16.0, 24.0, 5.0,
+        -10.0, 16.0, 24.0, 5.0,
+        -10.0, 16.0, 4.0, 5.0,
+        10.0, 16.0, 4.0, 5.0
     ]);
 
-    var lightEnabled = [true, true];
+    var lightEnabled = [true, true, true, true];
 
     gl.uniform4fv(u_LightSources, lightSources);
     gl.uniform1iv(u_LightEnabled, lightEnabled);
@@ -513,7 +515,7 @@ function drawCeiling(drawInfo, width, depth, height) {
     var lightOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
 
     var lightOffsetX = (width / 4);
-    var lightOffsetZ = (height / 4);
+    var lightOffsetZ = (depth / 4);
 
     for (var i = 0; i < lightOffsets.length; i += 2) {
         modelMatrix = topMatrix();
