@@ -1,3 +1,5 @@
+var init = false;
+
 // Vertex shader program
 var VSHADER_SOURCE = loadLocalFile('vertex shader.glsl');
 
@@ -89,6 +91,9 @@ function htmlSetup() {
     doorAngleInput.oninput = function() {
         doorAngle = doorAngleInput.value;
     };
+
+    // Resized canvas
+    window.addEventListener('resize', resize, false);
 }
 
 function main() {
@@ -159,15 +164,21 @@ function main() {
         u_LightEnabled: u_LightEnabled
     };
 
+    init = true;
+    resize();
     draw();
 }
 
 function resize() {
+    if (!init) {
+        return;
+    }
+
     webglCanvas.width = window.innerWidth;
     webglCanvas.height = window.innerHeight;
     camera.aspectRatio = webglCanvas.width / webglCanvas.height;
+    drawInfo.gl.viewport(0, 0, drawInfo.gl.canvas.width, drawInfo.gl.canvas.height);
 }
-window.addEventListener('resize', resize, false); resize();
 
 function mouse(ev) {
     if (!isMouseDown || !isCanvasSelected) {
@@ -274,7 +285,7 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightInte
 
     gl.uniform3fv(u_LightSources, lightSources);
     gl.uniform2fv(u_LightIntensity, lightIntensities);
-    gl.uniform1iv(u_LightEnabled, lightEnabled);
+    gl.uniform1iv(u_LightEnabled, lightsEnabled);
     gl.uniform1iv(u_LightType, lightType);
 }
 
