@@ -330,7 +330,7 @@ function popMatrix() { // Retrieve the matrix from the array
 }
 
 function topMatrix() {
-    return g_matrixStack[g_matrixStack.length - 1]
+    return new Matrix4(g_matrixStack[g_matrixStack.length - 1]);
 }
 
 function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
@@ -414,6 +414,12 @@ function drawClassroomSides(drawBoxInfo, width, depth, height) {
     drawBox(drawBoxInfo);
     // Model the front wall
     modelMatrix.translate(0, 0, depth - 1);
+    drawBox(drawBoxInfo);
+
+    // Model the side wall without windows
+    modelMatrix = topMatrix();
+    modelMatrix.translate((width / -2) + 0.5, height / 2, 0);
+    modelMatrix.scale(1, height, depth);
     drawBox(drawBoxInfo);
 
     // Return back to origin
