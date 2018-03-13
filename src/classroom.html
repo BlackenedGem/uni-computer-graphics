@@ -7,9 +7,15 @@
   </head>
 
   <body onload="main()">
-    <canvas id="webgl" width="1000" height="650">
-      Please use a browser that supports "canvas"
-    </canvas>
+    <div id="container">
+        <canvas id="webgl" width="1000" height="650">
+            Please use a browser that supports "canvas"
+        </canvas>
+
+        <div id="controls">
+            <label>Test</label>
+        </div>
+    </div>
 
     <div class="slidecontainer" id="doorAngleInput">
         <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
