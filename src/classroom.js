@@ -38,6 +38,9 @@ key = {
     RIGHT: 39
 };
 
+// Variable to store GL information and matrices to avoid constant parameter passing
+var drawInfo;
+
 function main() {
     // Retrieve <canvas> element
     var canvas = document.getElementById('webgl');
@@ -107,7 +110,16 @@ function main() {
         mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
     };
 
-    draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
+    // Reduce parameters when calling drawBox by storing in an object
+    drawInfo = {
+        gl: gl,
+        u_ModelMatrix: u_ModelMatrix,
+        u_NormalMatrix: u_NormalMatrix,
+        u_Color: u_Color,
+        u_isLighting: u_isLighting
+    };
+
+    draw();
 }
 
 function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
@@ -125,8 +137,6 @@ function mouse(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
     if (camera.altitude < -89.9) {
         camera.altitude = -89.9;
     }
-
-    draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color);
 }
 
 function keydown(ev, gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
@@ -344,7 +354,12 @@ function topMatrix() {
     return new Matrix4(g_matrixStack[g_matrixStack.length - 1]);
 }
 
-function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
+function draw() {
+    var gl = drawInfo.gl;
+    var u_ModelMatrix = drawInfo.u_ModelMatrix;
+    var u_Color = drawInfo.u_Color;
+    var u_isLighting = drawInfo.u_isLighting;
+
     // Start timer
     var startTime = performance.now();
 
@@ -378,53 +393,48 @@ function draw(gl, u_ModelMatrix, u_NormalMatrix, u_isLighting, u_Color) {
         console.log('Failed to set the vertex information');
         return;
     }
-
-    // Reduce parameters when calling drawBox by storing in an object
-    var drawBoxInfo = {
-        gl: gl,
-        u_ModelMatrix: u_ModelMatrix,
-        u_NormalMatrix: u_NormalMatrix,
-        u_Color: u_Color,
-        n: n
-    };
+    drawInfo.n = n;
 
     // Draw walls and floor
     pushMatrix(modelMatrix);
     modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
-    drawClassroomSides(drawBoxInfo, 40, 40, 18);
+    drawClassroomSides(drawInfo, 40, 40, 18);
     modelMatrix = popMatrix();
 
     // Draw 3 rows of chairs/tables
     for (var i = 0; i < 3; i++) {
-        drawRow(drawBoxInfo, 9, 0, i * 8);
-        drawRow(drawBoxInfo, -9, 0, i * 8);
+        drawRow(drawInfo, 9, 0, i * 8);
+        drawRow(drawInfo, -9, 0, i * 8);
     }
 
     // Draw desk at front
-    drawFrontDesk(drawBoxInfo, 10.5, 0, 26.5);
+    drawFrontDesk(drawInfo, 10.5, 0, 26.5);
 
     // End timer and update
     var renderTime = performance.now() - startTime;
     renderTime = renderTime.toFixed(3);
     frameTimeLabel.innerText = "Frame time: " + renderTime + " ms";
+
+    // Make it so that draw is called again when needed
+    window.requestAnimationFrame(draw);
 }
 
-function drawFrontDesk(drawBoxInfo, x, y, z) {
+function drawFrontDesk(drawInfo, x, y, z) {
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y, z);
 
-    drawTable(drawBoxInfo, 0, 0, 0, 9, [0.788, 0.776, 1, 1]); // Light blue
+    drawTable(drawInfo, 0, 0, 0, 9, [0.788, 0.776, 1, 1]); // Light blue
 
     modelMatrix.translate(2, 0, 5);
     modelMatrix.rotate(235, 0, 1, 0);
-    drawChair(drawBoxInfo, 0, 0, 0, [0.878, 0.165, 0.165, 1]); // Red
+    drawChair(drawInfo, 0, 0, 0, [0.878, 0.165, 0.165, 1]); // Red
 
     modelMatrix = popMatrix();
 }
 
-function drawClassroomSides(drawBoxInfo, width, depth, height) {
+function drawClassroomSides(drawInfo, width, depth, height) {
     // Set the colour to white
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [1, 1, 1, 1]);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 1, 1, 1]);
 
     // Save the matrix in the middle of the floor
     pushMatrix(modelMatrix);
@@ -432,43 +442,43 @@ function drawClassroomSides(drawBoxInfo, width, depth, height) {
     // Model the floor
     modelMatrix.translate(0, -0.5, 0);
     modelMatrix.scale(width, 1, depth); // Scale
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     // Model the back wall
     modelMatrix = topMatrix();
     modelMatrix.translate(0, height / 2, (depth / -2) + 0.5);
     modelMatrix.scale(width, height, 1); // Scale
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
     // Model the front wall
     modelMatrix.translate(0, 0, depth - 1);
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     // Model the side wall without windows
     modelMatrix = topMatrix();
     modelMatrix.translate((width / -2) + 0.5, height / 2, 0);
     modelMatrix.scale(1, height, depth);
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     modelMatrix = topMatrix();
     modelMatrix.translate((width / 2) - 0.5, 0, 0);
-    drawWallWithWindows(drawBoxInfo, depth, height, 15, 5, 2);
+    drawWallWithWindows(drawInfo, depth, height, 15, 5, 2);
 
     // Return back to origin
     modelMatrix = popMatrix();
 }
 
-function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, heightFromFloor, heightFromTop) {
+function drawWallWithWindows(drawInfo, depth, height, windowWidth, heightFromFloor, heightFromTop) {
     pushMatrix(modelMatrix);
 
     // Top and bottom sections
     modelMatrix.translate(0, heightFromFloor / 2, 0);
     modelMatrix.scale(1, heightFromFloor, depth);
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     modelMatrix = topMatrix();
     modelMatrix.translate(0, height - (heightFromTop / 2), 0);
     modelMatrix.scale(1, heightFromTop, depth);
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     // Dividers
     var dividerWidth = (depth - (windowWidth * 2)) / 3;
@@ -479,7 +489,7 @@ function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, heightFrom
         modelMatrix = topMatrix();
         modelMatrix.translate(0, height / 2, i * dividerTranslate);
         modelMatrix.scale(1, height, dividerWidth);
-        drawBox(drawBoxInfo);
+        drawBox(drawInfo);
     }
 
     var windowHeight = height - (heightFromFloor + heightFromTop);
@@ -489,70 +499,70 @@ function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, heightFrom
     // Create the two windows
     modelMatrix = topMatrix();
     modelMatrix.translate(0, windowCentreHeight, windowCentreWidth);
-    drawWindow(drawBoxInfo, windowWidth, windowHeight);
+    drawWindow(drawInfo, windowWidth, windowHeight);
 
     modelMatrix = topMatrix();
     modelMatrix.translate(0, windowCentreHeight, -windowCentreWidth);
-    drawWindow(drawBoxInfo, windowWidth, windowHeight);
+    drawWindow(drawInfo, windowWidth, windowHeight);
 
     popMatrix();
 }
 
-function drawWindow(drawBoxInfo, width, height) {
+function drawWindow(drawInfo, width, height) {
     pushMatrix(modelMatrix);
 
     var borderThickness = 0.2;
 
     // Side borders - Brown colour
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.396, 0.263, 0.129, 1]);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.396, 0.263, 0.129, 1]);
 
     modelMatrix.translate(0, 0, (width - borderThickness) / 2);
     modelMatrix.scale(1.2, height, borderThickness);
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     modelMatrix = topMatrix();
     modelMatrix.translate(0, 0, (width - borderThickness) / -2);
     modelMatrix.scale(1.3, height - borderThickness, borderThickness);
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     // Top border
     modelMatrix = topMatrix();
     modelMatrix.translate(0, (height - borderThickness) / 2, 0);
     modelMatrix.scale(1.3, borderThickness, width);
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     // Window sill
     modelMatrix = topMatrix();
     modelMatrix.translate(0, (height - borderThickness) / -2, 0);
     modelMatrix.scale(2, borderThickness, width);
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     // The glass pane
     // Blueish with alpha value
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.788, 0.867, 1, 0.1]);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.788, 0.867, 1, 0.1]);
     modelMatrix = topMatrix();
     modelMatrix.scale(0.4, height, width);
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
 
     modelMatrix = popMatrix();
 }
 
-function drawRow(drawBoxInfo, x, y, z) {
+function drawRow(drawInfo, x, y, z) {
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y, z);  // Translation
 
-    drawChair(drawBoxInfo, -4.5, 0, 0);
-    drawChair(drawBoxInfo, -1.5, 0, 0);
-    drawChair(drawBoxInfo, 1.5, 0, 0);
-    drawChair(drawBoxInfo, 4.5, 0, 0);
+    drawChair(drawInfo, -4.5, 0, 0);
+    drawChair(drawInfo, -1.5, 0, 0);
+    drawChair(drawInfo, 1.5, 0, 0);
+    drawChair(drawInfo, 4.5, 0, 0);
 
-    drawTable(drawBoxInfo, -3.05, 0, 3);
-    drawTable(drawBoxInfo, 3.05, 0, 3);
+    drawTable(drawInfo, -3.05, 0, 3);
+    drawTable(drawInfo, 3.05, 0, 3);
 
     modelMatrix = popMatrix();
 }
 
-function drawTable(drawBoxInfo, x, y, z, width, colour) {
+function drawTable(drawInfo, x, y, z, width, colour) {
     // Default values
     if (!colour) {
         colour = [0.824, 0.706, 0.549, 1]; // Browny colour
@@ -561,7 +571,7 @@ function drawTable(drawBoxInfo, x, y, z, width, colour) {
         width = 6;
     }
 
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, colour);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, colour);
 
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y + 3.25, z);  // Translation
@@ -569,11 +579,11 @@ function drawTable(drawBoxInfo, x, y, z, width, colour) {
     // Model the table top
     pushMatrix(modelMatrix);
     modelMatrix.scale(width, 0.3, 3.0); // Scale
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
     modelMatrix = popMatrix();
 
     // Set the leg colour to dark grey
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.3, 0.3, 0.3, 1]);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.3, 0.3, 0.3, 1]);
 
     // Model legs
     // Do this in a loop
@@ -585,21 +595,21 @@ function drawTable(drawBoxInfo, x, y, z, width, colour) {
         pushMatrix(modelMatrix);
         modelMatrix.translate(widthOffset * legOffsets[i], -1.7, 1.25 * legOffsets[i + 1]);  // Translation
         modelMatrix.scale(0.4, 3.1, 0.4); // Scale
-        drawBox(drawBoxInfo);
+        drawBox(drawInfo);
         modelMatrix = popMatrix();
     }
 
     modelMatrix = popMatrix();
 }
 
-function drawChair(drawBoxInfo, x, y, z, colour) {
+function drawChair(drawInfo, x, y, z, colour) {
     // Default values
     if (!colour) {
         colour = [0.137, 0.576, 0.278, 1]; // Green colour
     }
 
     // Set the seat colour to green
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, colour);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, colour);
 
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y + 2.15, z);  // Translation
@@ -607,18 +617,18 @@ function drawChair(drawBoxInfo, x, y, z, colour) {
     // Model the chair seat
     pushMatrix(modelMatrix);
     modelMatrix.scale(2.0, 0.3, 2.0); // Scale
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
     modelMatrix = popMatrix();
 
     // Model the chair back
     pushMatrix(modelMatrix);
     modelMatrix.translate(0, 1.65, -0.85);  // Translation
     modelMatrix.scale(2.0, 3.0, 0.3); // Scale
-    drawBox(drawBoxInfo);
+    drawBox(drawInfo);
     modelMatrix = popMatrix();
 
     // Set the leg colour to dark grey
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.5, 0.5, 0.5, 1]);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.5, 0.5, 0.5, 1]);
 
     // Model legs
     // Do this in a loop
@@ -630,18 +640,18 @@ function drawChair(drawBoxInfo, x, y, z, colour) {
         pushMatrix(modelMatrix);
         modelMatrix.translate(0.8 * legOffsets[i], -1.15, 0.8 * legOffsets[i + 1]);  // Translation
         modelMatrix.scale(0.4, 2.0, 0.4); // Scale
-        drawBox(drawBoxInfo);
+        drawBox(drawInfo);
         modelMatrix = popMatrix();
     }
 
     modelMatrix = popMatrix();
 }
 
-function drawBox(drawBoxInfo) {
-    var gl = drawBoxInfo.gl;
-    var u_ModelMatrix = drawBoxInfo.u_ModelMatrix;
-    var u_NormalMatrix = drawBoxInfo.u_NormalMatrix;
-    var num_vertices = drawBoxInfo.n;
+function drawBox(drawInfo) {
+    var gl = drawInfo.gl;
+    var u_ModelMatrix = drawInfo.u_ModelMatrix;
+    var u_NormalMatrix = drawInfo.u_NormalMatrix;
+    var num_vertices = drawInfo.n;
 
     // Pass the model matrix to the uniform variable
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
