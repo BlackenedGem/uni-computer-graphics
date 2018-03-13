@@ -457,25 +457,56 @@ function drawWallWithWindows(drawBoxInfo, depth, height, windowWidth, heightFrom
         drawBox(drawBoxInfo);
     }
 
-    // Blueish Windows with alpha value
-    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.788, 0.867, 1, 0.3]);
     var windowHeight = height - (heightFromFloor + heightFromTop);
     var windowCentreWidth = (dividerWidth + windowWidth) / 2;
     var windowCentreHeight = heightFromFloor + (windowHeight / 2);
 
     // Create the two windows
     modelMatrix = topMatrix();
-    drawWindow(drawBoxInfo, windowWidth, windowHeight, windowCentreHeight, windowCentreWidth);
-    drawWindow(drawBoxInfo, windowWidth, windowHeight, windowCentreHeight, -windowCentreWidth);
+    modelMatrix.translate(0, windowCentreHeight, windowCentreWidth);
+    drawWindow(drawBoxInfo, windowWidth, windowHeight);
+
+    modelMatrix = topMatrix();
+    modelMatrix.translate(0, windowCentreHeight, -windowCentreWidth);
+    drawWindow(drawBoxInfo, windowWidth, windowHeight);
 
     popMatrix();
 }
 
-function drawWindow(drawBoxInfo, width, height, y, z) {
+function drawWindow(drawBoxInfo, width, height) {
     pushMatrix(modelMatrix);
 
-    modelMatrix.translate(0, y, z);
-    modelMatrix.scale(1, height, width);
+    var borderThickness = 0.2;
+
+    // Side borders - Brown colour
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.396, 0.263, 0.129, 1]);
+
+    modelMatrix.translate(0, 0, (width - borderThickness) / 2);
+    modelMatrix.scale(1.2, height, borderThickness);
+    drawBox(drawBoxInfo);
+
+    modelMatrix = topMatrix();
+    modelMatrix.translate(0, 0, (width - borderThickness) / -2);
+    modelMatrix.scale(1.3, height - borderThickness, borderThickness);
+    drawBox(drawBoxInfo);
+
+    // Top border
+    modelMatrix = topMatrix();
+    modelMatrix.translate(0, (height - borderThickness) / 2, 0);
+    modelMatrix.scale(1.3, borderThickness, width);
+    drawBox(drawBoxInfo);
+
+    // Window sill
+    modelMatrix = topMatrix();
+    modelMatrix.translate(0, (height - borderThickness) / -2, 0);
+    modelMatrix.scale(2, borderThickness, width);
+    drawBox(drawBoxInfo);
+
+    // The glass pane
+    // Blueish with alpha value
+    drawBoxInfo.gl.uniform4fv(drawBoxInfo.u_Color, [0.788, 0.867, 1, 0.1]);
+    modelMatrix = topMatrix();
+    modelMatrix.scale(0.4, height, width);
     drawBox(drawBoxInfo);
 
     modelMatrix = popMatrix();
