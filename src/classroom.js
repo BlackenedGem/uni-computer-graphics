@@ -646,8 +646,8 @@ function drawFrontDesk(drawInfo, x, y, z) {
 }
 
 function drawCeiling(drawInfo, width, depth, height) {
-    // Set the colour to white
-    drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 1, 1, 1]);
+    // Set the colour to Blue
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.737, 0.941, 1, 1]);
 
     // Save the matrix in the middle of the floor
     pushMatrix(modelMatrix);
@@ -696,16 +696,19 @@ function drawCeiling(drawInfo, width, depth, height) {
 }
 
 function drawClassroomSides(drawInfo, width, depth, height) {
-    // Set the colour to white
-    drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 1, 1, 1]);
-
     // Save the matrix in the middle of the floor
     pushMatrix(modelMatrix);
+
+    // Set the colour to Red
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.749, 0.341, 0.341, 1]);
 
     // Model the floor
     modelMatrix.translate(0, -0.5, 0);
     modelMatrix.scale(width, 1, depth); // Scale
     drawBox(drawInfo);
+
+    // Set the colour to Blue
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.737, 0.941, 1, 1]);
 
     // Model the back wall
     modelMatrix = topMatrix();
