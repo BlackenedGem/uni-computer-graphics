@@ -9,14 +9,15 @@ uniform vec4 u_Color;
 uniform bool u_isLighting;
 
 // Lighting information
-uniform vec3 u_LightColor; // Global light colour
+uniform vec3 u_AmbientColor;// Global light colour
+uniform vec3 u_LightColor;
 const int numLights = 4;
 uniform vec3 u_LightSources[numLights]; // Info of individual lightsource. Either position or direction (x, y, z)
 uniform vec2 u_LightIntensity[numLights]; // Intensity of light. For spot light contains drop off factor
 uniform bool u_LightType[numLights]; // Whether light source is spot or directional
 uniform bool u_LightEnabled[numLights]; // Whether light source is enabled or not
 
-uniform bool u_ExtraAmbient;
+uniform bool u_ExtraAmbient; // Whether the object is a light source so should have additional light
 
 // Varyings
 varying vec3 v_Normal;
@@ -29,7 +30,7 @@ void main() {
         return;
     }
 
-    float spotLightIntensity = 0.0;
+    vec3 diffuse;
 
     for (int i = 0; i < numLights; i++) {
         // Only include lights that are turned on
@@ -51,16 +52,14 @@ void main() {
             // Calculate the light direction and make it 1.0 in length
             // Dot product of light direction and normal
             float nDotL = max(dot(lightDirection, v_Normal), 0.0);
-            spotLightIntensity += nDotL * lightIntensity;
+            diffuse += u_LightColor * u_Color.rgb * nDotL * lightIntensity;
         } else {
             lightDirection = u_LightSources[i];
 
             float nDotL = max(dot(lightDirection, v_Normal), 0.0);
-            spotLightIntensity += nDotL * lightIntensity;
+            diffuse += nDotL * u_LightColor * lightIntensity;
         }
     }
-
-    vec3 diffuse = u_LightColor * u_Color.rgb * spotLightIntensity;
 
     // Toggle if the light is an actual light source
     vec3 ambient;
@@ -70,7 +69,6 @@ void main() {
     } else {
         ambient = 0.05 * u_Color.rgb;
     }
-
 
     gl_FragColor = vec4(diffuse + ambient, u_Color.a);
 }
