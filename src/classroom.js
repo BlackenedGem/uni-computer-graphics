@@ -5,7 +5,8 @@ let VSHADER_SOURCE = loadLocalFile('vertex shader.glsl');
 
 // Fragment shader program
 let FSHADER_SOURCE = loadLocalFile('fragment shader.glsl');
- 
+
+// Matrices
 let modelMatrix = new Matrix4(); // The model matrix
 let viewMatrix = new Matrix4();  // The view matrix
 let projMatrix = new Matrix4();  // The projection matrix
@@ -813,18 +814,19 @@ function drawChair(drawInfo, x, y, z, colour) {
     drawInfo.gl.uniform4fv(drawInfo.u_Color, colour);
 
     pushMatrix(modelMatrix);
-    modelMatrix.translate(x, y + 2.15, z);  // Translation
+    modelMatrix.translate(x, y, z);  // Translation
 
     // Model the chair seat
     pushMatrix(modelMatrix);
-    modelMatrix.scale(2.0, 0.3, 2.0); // Scale
+    modelMatrix.translate(0, 2.1, 0);
+    modelMatrix.scale(2.0, 0.2, 2.0); // Scale
     drawBox(drawInfo);
     modelMatrix = popMatrix();
 
     // Model the chair back
     pushMatrix(modelMatrix);
-    modelMatrix.translate(0, 1.65, -0.85);  // Translation
-    modelMatrix.scale(2.0, 3.0, 0.3); // Scale
+    modelMatrix.translate(0, 3.25, -0.925);  // Translation
+    modelMatrix.scale(2.0, 2.5, 0.15); // Scale
     drawBox(drawInfo);
     modelMatrix = popMatrix();
 
@@ -836,11 +838,10 @@ function drawChair(drawInfo, x, y, z, colour) {
     // Array is a bunch of x/y multiplicative offsets
     let legOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
 
-    for (let i = 0; i < legOffsets.length; i += 2)
-    {
+    for (let i = 0; i < legOffsets.length; i += 2) {
         pushMatrix(modelMatrix);
-        modelMatrix.translate(0.8 * legOffsets[i], -1.15, 0.8 * legOffsets[i + 1]);  // Translation
-        modelMatrix.scale(0.4, 2.0, 0.4); // Scale
+        modelMatrix.translate(0.75 * legOffsets[i], 1.0 , 0.75 * legOffsets[i + 1]);  // Translation
+        modelMatrix.scale(0.25, 2.0, 0.25); // Scale
         drawBox(drawInfo);
         modelMatrix = popMatrix();
     }
