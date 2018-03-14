@@ -116,6 +116,7 @@ function htmlSetup() {
     cbRave.checked = false;
     cbRave.onclick = function() {
         raveMode = cbRave.checked;
+        updateLightIntensities(raveMode);
     };
 
     for (let i = 0; i < cbLights.length; i++) {
@@ -174,14 +175,6 @@ function main() {
         return;
     }
 
-    camera.u_ViewMatrix = u_ViewMatrix;
-    camera.u_ProjMatrix = u_ProjMatrix;
-
-    // Set the spot light sources
-    initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightIntensity, u_LightType, u_LightColor);
-
-    positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
-
     // Reduce parameters when calling drawBox by storing in an object
     drawInfo = {
         gl: gl,
@@ -191,8 +184,16 @@ function main() {
         u_isLighting: u_isLighting,
         u_LightEnabled: u_LightEnabled,
         u_ExtraAmbient: u_ExtraAmbient,
-        u_LightColor: u_LightColor
+        u_LightColor: u_LightColor,
+        u_LightIntensity: u_LightIntensity
     };
+
+    camera.u_ViewMatrix = u_ViewMatrix;
+    camera.u_ProjMatrix = u_ProjMatrix;
+
+    // Set the spot light sources
+    initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightType, u_LightColor);
+    positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
     init = true;
     resize();
@@ -302,7 +303,7 @@ function changeLightingSelection() {
     }
 }
 
-function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightIntensity, u_LightType) {
+function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightType) {
     // Initialises the lights with their locations, types, and intensities
     let lightSources = new Float32Array([   // Coordinates
         10.0, 15.0, 24.0,
@@ -311,19 +312,32 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightInte
         -10.0, 15.0, 4.0
     ]);
 
-    let lightIntensities = new Float32Array([
-       1.0, 15.0,
-       1.0, 15.0,
-       1.0, 15.0,
-       1.0, 15.0
-    ]);
-
     let lightType = [true, true, true, true];
 
     gl.uniform3fv(u_LightSources, lightSources);
-    gl.uniform2fv(u_LightIntensity, lightIntensities);
     gl.uniform1iv(u_LightEnabled, lightsEnabled);
     gl.uniform1iv(u_LightType, lightType);
+
+    updateLightIntensities(false);
+}
+
+function updateLightIntensities(raveMode = false) {
+    let dropoff = 10.0;
+    let intensity = 1.2;
+
+    if (raveMode) {
+        intensity = 1.0;
+        dropoff = 13.0;
+    }
+
+    let lightIntensities = new Float32Array([
+        intensity , dropoff,
+        intensity , dropoff,
+        intensity , dropoff,
+        intensity , dropoff
+    ]);
+
+    drawInfo.gl.uniform2fv(drawInfo.u_LightIntensity, lightIntensities);
 }
 
 function initVertexBuffers(gl) {
