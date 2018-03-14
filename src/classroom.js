@@ -1,3 +1,5 @@
+// region Global variables
+
 let init = false;
 
 // Vertex shader program
@@ -35,6 +37,13 @@ let frameTimeLabel;
 let doorAngle = 0;
 let lightsEnabled = [];
 let lightColors = [];
+let selectedChair = -1;
+let chairPositions = [];
+const NUM_CHAIRS = 24;
+for (let i = 0; i < NUM_CHAIRS; i++) {
+    chairPositions.push(0);
+}
+
 let raveMode = false;
 let raveColors = [];
 
@@ -51,12 +60,16 @@ let cbRave;
 let isMouseDown = false;
 let isCanvasSelected = false;
 
-// Enums for key
+// Enums for keyboard
 key = {
     W: 87,
     A: 65,
     S: 83,
     D: 68,
+    U: 85,
+    O: 79,
+    I: 73,
+    K: 75,
     UP: 40,
     DOWN: 38,
     LEFT: 37,
@@ -68,6 +81,10 @@ keyboard = {};
 
 // Variable to store GL information and matrices to avoid constant parameter passing
 let drawInfo;
+
+//endregion
+
+/* Setup functions */
 
 function htmlSetup() {
     // Retrieve objects
@@ -98,6 +115,7 @@ function htmlSetup() {
     // Keyboard/mouse
     document.onkeydown = function(ev){
         keyboard[ev.keyCode] = true;
+        keyInputNotSmooth(ev);
     };
 
     document.onkeyup = function(ev) {
@@ -219,6 +237,8 @@ function resize() {
     drawInfo.gl.viewport(0, 0, drawInfo.gl.canvas.width, drawInfo.gl.canvas.height);
 }
 
+/* Input functions */
+
 function mouse(ev) {
     if (!isMouseDown || !isCanvasSelected) {
         return;
@@ -235,6 +255,18 @@ function mouse(ev) {
         camera.altitude = -89.9;
     }
 }
+
+function keyInputNotSmooth(ev) {
+    // Handle selection of chairs
+    switch (ev.keyCode) {
+        case key.U:
+            break;
+        case key.O:
+            break;
+    }
+}
+
+/* Camera functions */
 
 function cameraMovement() {
     let amount = 0.3;
@@ -276,8 +308,8 @@ function moveCameraUpwards(amount) {
     camera.y += amount;
 }
 
-// Actually position the camera with view and projection matrix
 function positionCamera(gl) {
+    // Actually position the camera with view and projection matrix
     let x_at_off = Math.sin(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
     let z_at_off = Math.cos(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
     let y_at_off = Math.sin(degToRad(camera.altitude));
@@ -291,12 +323,7 @@ function positionCamera(gl) {
     gl.uniformMatrix4fv(camera.u_ProjMatrix, false, projMatrix.elements);
 }
 
-function changeLightingSelection() {
-    // Change the array determining which lights are turned on
-    for (let i = 0; i < cbLights.length; i++) {
-        lightsEnabled[i] = cbLights[i].checked;
-    }
-}
+/* Initialisation functions */
 
 function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightType) {
     // Initialises the lights with their locations, types, and intensities
@@ -456,19 +483,7 @@ function initAxesVertexBuffers(gl) {
     return n;
 }
 
-let g_matrixStack = []; // Array for storing a matrix
-function pushMatrix(m) { // Store the specified matrix to the array
-    let m2 = new Matrix4(m);
-    g_matrixStack.push(m2);
-}
-
-function popMatrix() { // Retrieve the matrix from the array
-    return g_matrixStack.pop();
-}
-
-function topMatrix() {
-    return new Matrix4(g_matrixStack[g_matrixStack.length - 1]);
-}
+/* Drawing functions */
 
 function draw() {
     let gl = drawInfo.gl;
@@ -867,6 +882,30 @@ function drawBox(drawInfo) {
     gl.drawElements(gl.TRIANGLES, num_vertices, gl.UNSIGNED_BYTE, 0);
 }
 
+/* Matrix functions */
+let g_matrixStack = []; // Array for storing a matrix
+function pushMatrix(m) { // Store the specified matrix to the array
+    let m2 = new Matrix4(m);
+    g_matrixStack.push(m2);
+}
+
+function popMatrix() { // Retrieve the matrix from the array
+    return g_matrixStack.pop();
+}
+
+function topMatrix() {
+    return new Matrix4(g_matrixStack[g_matrixStack.length - 1]);
+}
+
+/* Update functions */
+
+function changeLightingSelection() {
+    // Change the array determining which lights are turned on
+    for (let i = 0; i < cbLights.length; i++) {
+        lightsEnabled[i] = cbLights[i].checked;
+    }
+}
+
 function updateFPS(renderTime) {
     frameTimes[nextFrame] = renderTime;
     nextFrame++;
@@ -880,15 +919,6 @@ function updateFPS(renderTime) {
 
         frameTimeLabel.innerText = "Avg. Frame Time: " + frameTime.toFixed(2) + "ms";
     }
-}
-
-function sumArray(array) {
-    let sum = 0;
-    for (let i = 0; i < array.length; i++) {
-        sum += array[i];
-    }
-
-    return sum;
 }
 
 function updateLightColour() {

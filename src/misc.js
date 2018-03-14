@@ -24,6 +24,15 @@ function HSVtoRGB(h, s, v) {
     return [r, g, b];
 }
 
+function sumArray(array) {
+    let sum = 0;
+    for (let i = 0; i < array.length; i++) {
+        sum += array[i];
+    }
+
+    return sum;
+}
+
 function degToRad(degree) {
     return degree * (Math.PI / 180);
 }
