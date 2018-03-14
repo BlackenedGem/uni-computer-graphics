@@ -62,6 +62,9 @@ key = {
     RIGHT: 39
 };
 
+// Track all the key states
+keyboard = {};
+
 // Variable to store GL information and matrices to avoid constant parameter passing
 let drawInfo;
 
@@ -93,7 +96,11 @@ function htmlSetup() {
     // Handle user input
     // Keyboard/mouse
     document.onkeydown = function(ev){
-        keydown(ev);
+        keyboard[ev.keyCode] = true;
+    };
+
+    document.onkeyup = function(ev) {
+        keyboard[ev.keyCode] = false;
     };
 
     document.onmousemove = function(ev) {
@@ -228,28 +235,15 @@ function mouse(ev) {
     }
 }
 
-function keydown(ev) {
-    switch (ev.keyCode) {
-        case key.W:
-            moveCameraForwards(1);
-            break;
-        case key.S:
-            moveCameraForwards(-1);
-            break;
-        case key.UP:
-            moveCameraUpwards(-1);
-            break;
-        case key.DOWN:
-            moveCameraUpwards(1);
-            break;
-        case key.RIGHT:
-            moveCameraSideways(-1);
-            break;
-        case key.LEFT:
-            moveCameraSideways(1);
-            break;
-        default: return; // Skip drawing at no effective action
-    }
+function cameraMovement() {
+    let amount = 0.3;
+
+    if (keyboard[key.W]) { moveCameraForwards(amount); }
+    if (keyboard[key.S]) { moveCameraForwards(-amount); }
+    if (keyboard[key.UP]) { moveCameraUpwards(-amount); }
+    if (keyboard[key.DOWN]) { moveCameraUpwards(amount); }
+    if (keyboard[key.RIGHT]) { moveCameraSideways(-amount); }
+    if (keyboard[key.LEFT]) { moveCameraSideways(amount); }
 }
 
 function moveCameraForwards(amount) {
@@ -487,6 +481,7 @@ function draw() {
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    cameraMovement();
     positionCamera(gl); // Position camera using the global camera object
     gl.uniform1i(u_isLighting, false); // Will not apply lighting
 
