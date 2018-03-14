@@ -594,7 +594,7 @@ function draw() {
     drawFrontDesk(drawInfo, 10.5, 0, 26.5);
 
     // Draw door
-    drawDoor(drawInfo, -18, 0, 33);
+    drawDoor(drawInfo, -19.5, 0, 33);
 
     // End timer and update
     updateFPS(performance.now() - startTime);
@@ -604,7 +604,7 @@ function draw() {
 }
 
 function drawDoor(drawInfo, x, y, z) {
-    let depth = 1;
+    let depth = 0.6;
     let width = 5;
     let height = 12;
 
@@ -716,12 +716,19 @@ function drawClassroomSides(drawInfo, width, depth, height) {
     modelMatrix.translate(0, 0, depth - 1);
     drawBox(drawInfo);
 
-    // Model the side wall without windows
+    // Model the side wall without windows. Needs two pieces because of the door
     modelMatrix = topMatrix();
-    modelMatrix.translate((width / -2) + 0.5, height / 2, 0);
-    modelMatrix.scale(1, height, depth);
+    modelMatrix.translate((width / -2) + 0.5, height / 2, -3);
+    modelMatrix.scale(1, height, depth - 6);
     drawBox(drawInfo);
 
+    modelMatrix = topMatrix();
+    modelMatrix.translate((width / -2) + 0.5, (height + 12) / 2, (depth / 2) - 3);
+    modelMatrix.scale(1, height - 12, 6);
+    drawBox(drawInfo);
+
+
+    // Draw the wall with windows
     modelMatrix = topMatrix();
     modelMatrix.translate((width / 2) - 0.5, 0, 0);
     drawWallWithWindows(drawInfo, depth, height, 15, 5, 2);
