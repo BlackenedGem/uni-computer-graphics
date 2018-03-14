@@ -541,8 +541,8 @@ function draw() {
 
     // Draw 3 rows of chairs/tables
     for (let i = 0; i < 3; i++) {
-        drawRow(drawInfo, 9, 0, i * 8);
-        drawRow(drawInfo, -9, 0, i * 8);
+        drawRow(drawInfo, 9, 0, i * 8, i * 8);
+        drawRow(drawInfo, -9, 0, i * 8, i * 8 + 4);
     }
 
     // Draw desk at front
@@ -765,14 +765,13 @@ function drawWindow(drawInfo, width, height) {
     modelMatrix = popMatrix();
 }
 
-function drawRow(drawInfo, x, y, z) {
+function drawRow(drawInfo, x, y, z, chairIDOffset) {
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y, z);  // Translation
 
-    drawChair(drawInfo, -4.5, 0, 0);
-    drawChair(drawInfo, -1.5, 0, 0);
-    drawChair(drawInfo, 1.5, 0, 0);
-    drawChair(drawInfo, 4.5, 0, 0);
+    for (let i = 0; i < 4; i++) {
+        drawChair(drawInfo, (i * 3) - 4.5, 0, 0, null, chairIDOffset + i);
+    }
 
     drawTable(drawInfo, -3.05, 0, 3);
     drawTable(drawInfo, 3.05, 0, 3);
@@ -820,7 +819,7 @@ function drawTable(drawInfo, x, y, z, width, colour) {
     modelMatrix = popMatrix();
 }
 
-function drawChair(drawInfo, x, y, z, colour) {
+function drawChair(drawInfo, x, y, z, colour, chairID = -2) {
     // Default values
     if (!colour) {
         colour = [0.137, 0.576, 0.278, 1]; // Green colour
