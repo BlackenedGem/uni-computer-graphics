@@ -37,23 +37,26 @@ void main() {
             continue;
         }
 
-        float lightStrength = u_LightIntensity[i].x;
+        float lightIntensity = u_LightIntensity[i].x;
 
         vec3 lightDirection;
         if (u_LightType[i]) {
             vec3 lightPosition = vec3(u_LightSources[i]);
             lightDirection = normalize(u_LightSources[i] - v_Position);
 
-            // Get the light distance
-            float lightDistance = length(u_LightSources[i] - v_Position) / u_LightIntensity[i].x;
-            lightDistance = min(1.0, 1.0 / pow(lightDistance, 2.0)); // Use an inverse square law
+            // Get the light distance and divide it by the dropoff
+            float lightDistance = length(u_LightSources[i] - v_Position) / u_LightIntensity[i].y;
+            lightIntensity /= pow(1.0 + lightDistance, 2.0); // Use an inverse square law
 
             // Calculate the light direction and make it 1.0 in length
             // Dot product of light direction and normal
             float nDotL = max(dot(lightDirection, v_Normal), 0.0);
-            spotLightIntensity += nDotL * lightDistance;
+            spotLightIntensity += nDotL * lightIntensity;
         } else {
             lightDirection = u_LightSources[i];
+
+            float nDotL = max(dot(lightDirection, v_Normal), 0.0);
+            spotLightIntensity += nDotL * lightIntensity;
         }
     }
 
@@ -62,8 +65,8 @@ void main() {
     // Toggle if the light is an actual light source
     vec3 ambient;
     if (u_ExtraAmbient) {
-        ambient = 0.6 * u_Color.rgb;
-        diffuse *= 0.5;
+        ambient = 0.4 * u_Color.rgb;
+        diffuse *= 0.8;
     } else {
         ambient = 0.05 * u_Color.rgb;
     }

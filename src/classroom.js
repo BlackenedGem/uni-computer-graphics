@@ -296,10 +296,10 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightInte
     ]);
 
     let lightIntensities = new Float32Array([
-       5.0, 0.0,
-       5.0, 0.0,
-       5.0, 0.0,
-       5.0, 0.0
+       1.0, 15.0,
+       1.0, 15.0,
+       1.0, 15.0,
+       1.0, 15.0
     ]);
 
     let lightType = [true, true, true, true];
@@ -584,7 +584,6 @@ function drawCeiling(drawInfo, width, depth, height) {
         if (lightsEnabled[i / 2]) {
             drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.976, 1, 0.757, 1]);
             drawInfo.gl.uniform1i(drawInfo.u_ExtraAmbient, true);
-            console.log(drawInfo.gl.getUniform(drawInfo.gl.program, drawInfo.u_ExtraAmbient));
         } else {
             drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.8, 0.8, 0.8, 1]);
             drawInfo.gl.uniform1i(drawInfo.u_ExtraAmbient, false);
