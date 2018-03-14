@@ -1,18 +1,18 @@
-var init = false;
+let init = false;
 
 // Vertex shader program
-var VSHADER_SOURCE = loadLocalFile('vertex shader.glsl');
+let VSHADER_SOURCE = loadLocalFile('vertex shader.glsl');
 
 // Fragment shader program
-var FSHADER_SOURCE = loadLocalFile('fragment shader.glsl');
-
-var modelMatrix = new Matrix4(); // The model matrix
-var viewMatrix = new Matrix4();  // The view matrix
-var projMatrix = new Matrix4();  // The projection matrix
-var g_normalMatrix = new Matrix4();  // Coordinate transformation matrix for normals
+let FSHADER_SOURCE = loadLocalFile('fragment shader.glsl');
+ 
+let modelMatrix = new Matrix4(); // The model matrix
+let viewMatrix = new Matrix4();  // The view matrix
+let projMatrix = new Matrix4();  // The projection matrix
+let g_normalMatrix = new Matrix4();  // Coordinate transformation matrix for normals
 
 // Camera
-var camera = {
+let camera = {
     x: 0,
     y: 10,
     z: 0,
@@ -23,27 +23,28 @@ var camera = {
 
 // Variables to track frame time/fps
 // Array of last X frame times (ms), use nextFrame to determine which one to replace
-var frameTimes = [];
-for (var i = 1; i <= 50; i++) {
+let frameTimes = [];
+for (let i = 1; i <= 50; i++) {
     frameTimes[i] = 0;
 }
-var nextFrame = 0;
-var frameTimeLabel;
+let nextFrame = 0;
+let frameTimeLabel;
 
 // Variables to keep track of dynamic objects
-var doorAngle = 0;
-var lightsEnabled = [true, true, true, true];
+let doorAngle = 0;
+let lightsEnabled = [true, true, true, true];
 
 // HTML objects
-var webglCanvas;
-var doorAngleInput;
-var interfaceTopLeft;
-var interfaceTopRight;
+let webglCanvas;
+let doorAngleInput;
+let interfaceTopLeft;
+let interfaceTopRight;
+
+let cbLights = [];
 
 // Variable that keeps track of the mouse/canvas status
-var isMouseDown = false;
-var isCanvasSelected = false;
-
+let isMouseDown = false;
+let isCanvasSelected = false;
 
 // Enums for key
 key = {
@@ -58,7 +59,7 @@ key = {
 };
 
 // Variable to store GL information and matrices to avoid constant parameter passing
-var drawInfo;
+let drawInfo;
 
 function htmlSetup() {
     // Retrieve objects
@@ -70,6 +71,11 @@ function htmlSetup() {
     interfaceTopLeft = document.getElementById("topleft");
     interfaceTopRight = document.getElementById("topright");
 
+    cbLights.push(document.getElementById("cbLight1"));
+    cbLights.push(document.getElementById("cbLight2"));
+    cbLights.push(document.getElementById("cbLight3"));
+    cbLights.push(document.getElementById("cbLight4"));
+
     // Setup functions
     document.onmousedown = function() { isMouseDown = true };
     document.onmouseup   = function() { isMouseDown = false };
@@ -79,6 +85,7 @@ function htmlSetup() {
     interfaceTopRight.onmousedown = function() { isCanvasSelected = false; };
 
     // Handle user input
+    // Keyboard/mouse
     document.onkeydown = function(ev){
         keydown(ev);
     };
@@ -87,10 +94,16 @@ function htmlSetup() {
         mouse(ev);
     };
 
+    // Doors/lights
     doorAngleInput.value = 0;
     doorAngleInput.oninput = function() {
         doorAngle = doorAngleInput.value;
     };
+
+    for (let cb of cbLights) {
+        cb.onclick = function() { changeLightingSelection() };
+        cb.checked = true;
+    }
 
     // Resized canvas
     window.addEventListener('resize', resize, false);
@@ -100,7 +113,7 @@ function main() {
     htmlSetup();
 
     // Get the rendering context for WebGL
-    var gl = getWebGLContext(webglCanvas);
+    let gl = getWebGLContext(webglCanvas);
     if (!gl) {
         console.log('Failed to get the rendering context for WebGL');
         return;
@@ -122,19 +135,19 @@ function main() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // Get the storage locations of uniform attributes
-    var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
-    var u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
-    var u_NormalMatrix = gl.getUniformLocation(gl.program, 'u_NormalMatrix');
-    var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
-    var u_LightColor = gl.getUniformLocation(gl.program, 'u_LightColor');
-    var u_LightSources = gl.getUniformLocation(gl.program, 'u_LightSources');
-    var u_LightIntensity = gl.getUniformLocation(gl.program, 'u_LightIntensity');
-    var u_LightEnabled = gl.getUniformLocation(gl.program, 'u_LightEnabled');
-    var u_LightType = gl.getUniformLocation(gl.program, 'u_LightType');
-    var u_Color = gl.getUniformLocation(gl.program, 'u_Color');
+    let u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+    let u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+    let u_NormalMatrix = gl.getUniformLocation(gl.program, 'u_NormalMatrix');
+    let u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
+    let u_LightColor = gl.getUniformLocation(gl.program, 'u_LightColor');
+    let u_LightSources = gl.getUniformLocation(gl.program, 'u_LightSources');
+    let u_LightIntensity = gl.getUniformLocation(gl.program, 'u_LightIntensity');
+    let u_LightEnabled = gl.getUniformLocation(gl.program, 'u_LightEnabled');
+    let u_LightType = gl.getUniformLocation(gl.program, 'u_LightType');
+    let u_Color = gl.getUniformLocation(gl.program, 'u_Color');
 
     // Trigger using lighting or not
-    var u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
+    let u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
 
     /*
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
@@ -222,9 +235,9 @@ function keydown(ev) {
 }
 
 function moveCameraForwards(amount) {
-    var x_move = Math.sin(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
-    var z_move = Math.cos(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
-    var y_move = Math.sin(degToRad(camera.altitude));
+    let x_move = Math.sin(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
+    let z_move = Math.cos(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
+    let y_move = Math.sin(degToRad(camera.altitude));
 
     camera.x += x_move * amount;
     camera.y += y_move * amount;
@@ -232,8 +245,8 @@ function moveCameraForwards(amount) {
 }
 
 function moveCameraSideways(amount) {
-    var x_move = Math.cos(degToRad(camera.azimuth));
-    var z_move = Math.sin(degToRad(camera.azimuth)) * -1;
+    let x_move = Math.cos(degToRad(camera.azimuth));
+    let z_move = Math.sin(degToRad(camera.azimuth)) * -1;
 
     camera.x += x_move * amount;
     camera.z += z_move * amount;
@@ -241,9 +254,9 @@ function moveCameraSideways(amount) {
 
 function moveCameraUpwards(amount) {
     /* We could move the camera upwards/downwards relative to where the camera is looking, but this is not a nice effect
-    var x_move = Math.sin(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
-    var z_move = Math.cos(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
-    var y_move = Math.cos(degToRad(camera.altitude)) * -1;
+    let x_move = Math.sin(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
+    let z_move = Math.cos(degToRad(camera.azimuth)) * Math.sin(degToRad(camera.altitude));
+    let y_move = Math.cos(degToRad(camera.altitude)) * -1;
 
     camera.x += x_move * amount;
     camera.z += z_move * amount; */
@@ -252,9 +265,9 @@ function moveCameraUpwards(amount) {
 
 // Actually position the camera with view and projection matrix
 function positionCamera(gl) {
-    var x_at_off = Math.sin(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
-    var z_at_off = Math.cos(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
-    var y_at_off = Math.sin(degToRad(camera.altitude));
+    let x_at_off = Math.sin(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
+    let z_at_off = Math.cos(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
+    let y_at_off = Math.sin(degToRad(camera.altitude));
 
     // Calculate the view matrix and the projection matrix
     viewMatrix.setLookAt(camera.x, camera.y, camera.z, camera.x + x_at_off, camera.y + y_at_off, camera.z + z_at_off, 0, 1, 0);
@@ -265,15 +278,22 @@ function positionCamera(gl) {
     gl.uniformMatrix4fv(camera.u_ProjMatrix, false, projMatrix.elements);
 }
 
+function changeLightingSelection() {
+    // Change the array determining which lights are turned on
+    for (let i = 0; i < cbLights.length; i++) {
+        lightsEnabled[i] = cbLights[i].checked;
+    }
+}
+
 function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightIntensity, u_LightType) {
-    var lightSources = new Float32Array([   // Coordinates
+    let lightSources = new Float32Array([   // Coordinates
         10.0, 16.0, 24.0,
         -10.0, 16.0, 24.0,
-        -10.0, 16.0, 4.0,
-        10.0, 16.0, 4.0
+        10.0, 16.0, 4.0,
+        -10.0, 16.0, 4.0
     ]);
 
-    var lightIntensities = new Float32Array([
+    let lightIntensities = new Float32Array([
        5.0, 0.0,
        5.0, 0.0,
        5.0, 0.0,
@@ -281,7 +301,7 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightInte
     ]);
 
     lightsEnabled = [true, true, true, true];
-    var lightType = [true, true, true, true];
+    let lightType = [true, true, true, true];
 
     gl.uniform3fv(u_LightSources, lightSources);
     gl.uniform2fv(u_LightIntensity, lightIntensities);
@@ -298,7 +318,7 @@ function initVertexBuffers(gl) {
     //  | |v7---|-|v4
     //  |/      |/
     //  v2------v3
-    var vertices = new Float32Array([   // Coordinates
+    let vertices = new Float32Array([   // Coordinates
         0.5, 0.5, 0.5,  -0.5, 0.5, 0.5,  -0.5,-0.5, 0.5,   0.5,-0.5, 0.5, // v0-v1-v2-v3 front
         0.5, 0.5, 0.5,   0.5,-0.5, 0.5,   0.5,-0.5,-0.5,   0.5, 0.5,-0.5, // v0-v3-v4-v5 right
         0.5, 0.5, 0.5,   0.5, 0.5,-0.5,  -0.5, 0.5,-0.5,  -0.5, 0.5, 0.5, // v0-v5-v6-v1 up
@@ -308,7 +328,7 @@ function initVertexBuffers(gl) {
     ]);
 
 
-    var normals = new Float32Array([    // Normal
+    let normals = new Float32Array([    // Normal
         0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
         1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,  // v0-v3-v4-v5 right
         0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,   0.0, 1.0, 0.0,  // v0-v5-v6-v1 up
@@ -319,7 +339,7 @@ function initVertexBuffers(gl) {
 
 
     // Indices of the vertices
-    var indices = new Uint8Array([
+    let indices = new Uint8Array([
         0, 1, 2,   0, 2, 3,    // front
         4, 5, 6,   4, 6, 7,    // right
         8, 9,10,   8,10,11,    // up
@@ -334,7 +354,7 @@ function initVertexBuffers(gl) {
     if (!initArrayBuffer(gl, 'a_Normal', normals, 3, gl.FLOAT)) return -1;
 
     // Write the indices to the buffer object
-    var indexBuffer = gl.createBuffer();
+    let indexBuffer = gl.createBuffer();
     if (!indexBuffer) {
         console.log('Failed to create the buffer object');
         return false;
@@ -348,7 +368,7 @@ function initVertexBuffers(gl) {
 
 function initArrayBuffer (gl, attribute, data, num, type) {
     // Create a buffer object
-    var buffer = gl.createBuffer();
+    let buffer = gl.createBuffer();
     if (!buffer) {
         console.log('Failed to create the buffer object');
         return false;
@@ -357,7 +377,7 @@ function initArrayBuffer (gl, attribute, data, num, type) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
     // Assign the buffer object to the attribute variable
-    var a_attribute = gl.getAttribLocation(gl.program, attribute);
+    let a_attribute = gl.getAttribLocation(gl.program, attribute);
     if (a_attribute < 0) {
         console.log('Failed to get the storage location of ' + attribute);
         return false;
@@ -372,7 +392,7 @@ function initArrayBuffer (gl, attribute, data, num, type) {
 }
 
 function initAxesVertexBuffers(gl) {
-    var verticesColors = new Float32Array([
+    let verticesColors = new Float32Array([
         // Vertex coordinates and color (for axes)
         -50.0,  0.0,   0.0,  1.0,  1.0,  1.0,  // (x,y,z), (r,g,b)
         50.0,  0.0,   0.0,  1.0,  1.0,  1.0,
@@ -381,10 +401,10 @@ function initAxesVertexBuffers(gl) {
         0.0,   0.0, -50.0,  1.0,  1.0,  1.0,
         0.0,   0.0,  50.0,  1.0,  1.0,  1.0
     ]);
-    var n = 6;
+    let n = 6;
 
     // Create a buffer object
-    var vertexColorBuffer = gl.createBuffer();
+    let vertexColorBuffer = gl.createBuffer();
     if (!vertexColorBuffer) {
         console.log('Failed to create the buffer object');
         return false;
@@ -394,9 +414,9 @@ function initAxesVertexBuffers(gl) {
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
 
-    var FSIZE = verticesColors.BYTES_PER_ELEMENT;
+    let FSIZE = verticesColors.BYTES_PER_ELEMENT;
     //Get the storage location of a_Position, assign and enable buffer
-    var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    let a_Position = gl.getAttribLocation(gl.program, 'a_Position');
     if (a_Position < 0) {
         console.log('Failed to get the storage location of a_Position');
         return -1;
@@ -410,9 +430,9 @@ function initAxesVertexBuffers(gl) {
     return n;
 }
 
-var g_matrixStack = []; // Array for storing a matrix
+let g_matrixStack = []; // Array for storing a matrix
 function pushMatrix(m) { // Store the specified matrix to the array
-    var m2 = new Matrix4(m);
+    let m2 = new Matrix4(m);
     g_matrixStack.push(m2);
 }
 
@@ -425,13 +445,13 @@ function topMatrix() {
 }
 
 function draw() {
-    var gl = drawInfo.gl;
-    var u_ModelMatrix = drawInfo.u_ModelMatrix;
-    var u_Color = drawInfo.u_Color;
-    var u_isLighting = drawInfo.u_isLighting;
+    let gl = drawInfo.gl;
+    let u_ModelMatrix = drawInfo.u_ModelMatrix;
+    let u_Color = drawInfo.u_Color;
+    let u_isLighting = drawInfo.u_isLighting;
 
     // Start timer
-    var startTime = performance.now();
+    let startTime = performance.now();
 
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -440,7 +460,7 @@ function draw() {
     gl.uniform1i(u_isLighting, false); // Will not apply lighting
 
     // Set the vertex coordinates and color (for the x, y axes)
-    var n = initAxesVertexBuffers(gl);
+    let n = initAxesVertexBuffers(gl);
     if (n < 0) {
         console.log('Failed to set the vertex information');
         return;
@@ -456,6 +476,7 @@ function draw() {
     gl.drawArrays(gl.LINES, 0, n);
 
     gl.uniform1i(u_isLighting, true); // Will apply lighting
+    gl.uniform1iv(drawInfo.u_LightEnabled, lightsEnabled); // Which lights to turn on
 
     // Set the vertex coordinates and color (for the cube)
     n = initVertexBuffers(gl);
@@ -473,7 +494,7 @@ function draw() {
     modelMatrix = popMatrix();
 
     // Draw 3 rows of chairs/tables
-    for (var i = 0; i < 3; i++) {
+    for (let i = 0; i < 3; i++) {
         drawRow(drawInfo, 9, 0, i * 8);
         drawRow(drawInfo, -9, 0, i * 8);
     }
@@ -492,9 +513,9 @@ function draw() {
 }
 
 function drawDoor(drawInfo, x, y, z) {
-    var depth = 1;
-    var width = 5;
-    var height = 12;
+    let depth = 1;
+    let width = 5;
+    let height = 12;
 
     // Door colour - brown
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.396, 0.263, 0.129, 1]);
@@ -548,12 +569,12 @@ function drawCeiling(drawInfo, width, depth, height) {
     // Model lights
     // Do this in a loop
     // Array is a bunch of x/y multiplicative offsets
-    var lightOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
+    let lightOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
 
-    var lightOffsetX = (width / 4);
-    var lightOffsetZ = (depth / 4);
+    let lightOffsetX = (width / 4);
+    let lightOffsetZ = (depth / 4);
 
-    for (var i = 0; i < lightOffsets.length; i += 2) {
+    for (let i = 0; i < lightOffsets.length; i += 2) {
         modelMatrix = topMatrix();
         modelMatrix.translate(lightOffsetX * lightOffsets[i], height - 1, lightOffsetZ * lightOffsets[i + 1]);  // Translation
         modelMatrix.scale(2.5, 1.0, 2.5); // Scale
@@ -612,20 +633,20 @@ function drawWallWithWindows(drawInfo, depth, height, windowWidth, heightFromFlo
     drawBox(drawInfo);
 
     // Dividers
-    var dividerWidth = (depth - (windowWidth * 2)) / 3;
-    var dividerTranslate = (depth / 2) - (dividerWidth / 2);
+    let dividerWidth = (depth - (windowWidth * 2)) / 3;
+    let dividerTranslate = (depth / 2) - (dividerWidth / 2);
 
     // Create the three diviers iteratively
-    for (var i = -1; i <= 1; i++) {
+    for (let i = -1; i <= 1; i++) {
         modelMatrix = topMatrix();
         modelMatrix.translate(0, height / 2, i * dividerTranslate);
         modelMatrix.scale(1, height, dividerWidth);
         drawBox(drawInfo);
     }
 
-    var windowHeight = height - (heightFromFloor + heightFromTop);
-    var windowCentreWidth = (dividerWidth + windowWidth) / 2;
-    var windowCentreHeight = heightFromFloor + (windowHeight / 2);
+    let windowHeight = height - (heightFromFloor + heightFromTop);
+    let windowCentreWidth = (dividerWidth + windowWidth) / 2;
+    let windowCentreHeight = heightFromFloor + (windowHeight / 2);
 
     // Create the two windows
     modelMatrix = topMatrix();
@@ -642,7 +663,7 @@ function drawWallWithWindows(drawInfo, depth, height, windowWidth, heightFromFlo
 function drawWindow(drawInfo, width, height) {
     pushMatrix(modelMatrix);
 
-    var borderThickness = 0.2;
+    let borderThickness = 0.2;
 
     // Side borders - Brown colour
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.396, 0.263, 0.129, 1]);
@@ -719,10 +740,10 @@ function drawTable(drawInfo, x, y, z, width, colour) {
     // Model legs
     // Do this in a loop
     // Array is a bunch of x/y multiplicative offsets
-    var legOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
-    var widthOffset = (width / 2) - 0.25;
+    let legOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
+    let widthOffset = (width / 2) - 0.25;
 
-    for (var i = 0; i < legOffsets.length; i += 2) {
+    for (let i = 0; i < legOffsets.length; i += 2) {
         pushMatrix(modelMatrix);
         modelMatrix.translate(widthOffset * legOffsets[i], -1.7, 1.25 * legOffsets[i + 1]);  // Translation
         modelMatrix.scale(0.4, 3.1, 0.4); // Scale
@@ -764,9 +785,9 @@ function drawChair(drawInfo, x, y, z, colour) {
     // Model legs
     // Do this in a loop
     // Array is a bunch of x/y multiplicative offsets
-    var legOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
+    let legOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
 
-    for (var i = 0; i < legOffsets.length; i += 2)
+    for (let i = 0; i < legOffsets.length; i += 2)
     {
         pushMatrix(modelMatrix);
         modelMatrix.translate(0.8 * legOffsets[i], -1.15, 0.8 * legOffsets[i + 1]);  // Translation
@@ -779,10 +800,10 @@ function drawChair(drawInfo, x, y, z, colour) {
 }
 
 function drawBox(drawInfo) {
-    var gl = drawInfo.gl;
-    var u_ModelMatrix = drawInfo.u_ModelMatrix;
-    var u_NormalMatrix = drawInfo.u_NormalMatrix;
-    var num_vertices = drawInfo.n;
+    let gl = drawInfo.gl;
+    let u_ModelMatrix = drawInfo.u_ModelMatrix;
+    let u_NormalMatrix = drawInfo.u_NormalMatrix;
+    let num_vertices = drawInfo.n;
 
     // Pass the model matrix to the uniform variable
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
@@ -804,16 +825,16 @@ function updateFPS(renderTime) {
     if (nextFrame >= frameTimes.length) {
         nextFrame = 0;
 
-        var totTime = sumArray(frameTimes);
-        var frameTime = totTime / frameTimes.length;
+        let totTime = sumArray(frameTimes);
+        let frameTime = totTime / frameTimes.length;
 
         frameTimeLabel.innerText = "Avg. Frame Time: " + frameTime.toFixed(2) + "ms";
     }
 }
 
 function sumArray(array) {
-    var sum = 0;
-    for (var i = 0; i < array.length; i++) {
+    let sum = 0;
+    for (let i = 0; i < array.length; i++) {
         sum += array[i];
     }
 
@@ -827,7 +848,7 @@ function degToRad(degree) {
 function loadLocalFile(filename) {
     // Synchronously load a local file and return it as text
     // https://stackoverflow.com/questions/247483/http-get-request-in-javascript
-    var xmlHttp = new XMLHttpRequest();
+    let xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", filename, false ); // false for synchronous request
     xmlHttp.send( null );
     return xmlHttp.responseText;
