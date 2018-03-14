@@ -33,6 +33,7 @@ let frameTimeLabel;
 // Variables to keep track of dynamic objects
 let doorAngle = 0;
 let lightsEnabled = [];
+let lightColors = [];
 
 // HTML objects
 let webglCanvas;
@@ -161,10 +162,8 @@ function main() {
     camera.u_ViewMatrix = u_ViewMatrix;
     camera.u_ProjMatrix = u_ProjMatrix;
 
-    // Set the light color (white)
-    gl.uniform3f(u_LightColor, 1.0, 1.0, 1.0);
     // Set the spot light sources
-    initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightIntensity, u_LightType);
+    initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightIntensity, u_LightType, u_LightColor);
 
     positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
@@ -176,7 +175,8 @@ function main() {
         u_Color: u_Color,
         u_isLighting: u_isLighting,
         u_LightEnabled: u_LightEnabled,
-        u_ExtraAmbient: u_ExtraAmbient
+        u_ExtraAmbient: u_ExtraAmbient,
+        u_LightColor: u_LightColor
     };
 
     init = true;
@@ -487,6 +487,9 @@ function draw() {
         return;
     }
     drawInfo.n = n;
+
+    // Update lighting colours
+    updateLightColour();
 
     // Draw walls and floor
     pushMatrix(modelMatrix);
@@ -854,15 +857,11 @@ function sumArray(array) {
     return sum;
 }
 
-function degToRad(degree) {
-    return degree * (Math.PI / 180);
-}
+function updateLightColour() {
+    // Set lights to all white
+    for (let i = 0; i < cbLights.length * 3; i++) {
+        lightColors[i] = 1.0;
+    }
 
-function loadLocalFile(filename) {
-    // Synchronously load a local file and return it as text
-    // https://stackoverflow.com/questions/247483/http-get-request-in-javascript
-    let xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", filename, false ); // false for synchronous request
-    xmlHttp.send( null );
-    return xmlHttp.responseText;
+    drawInfo.gl.uniform3fv(drawInfo.u_LightColor, lightColors);
 }
