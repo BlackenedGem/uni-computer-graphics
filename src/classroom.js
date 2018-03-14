@@ -30,10 +30,12 @@ for (let i = 1; i <= 50; i++) {
 let nextFrame = 0;
 let frameTimeLabel;
 
-// Variables to keep track of dynamic objects
+// Variables to keep track of dynamic objects/user selection
 let doorAngle = 0;
 let lightsEnabled = [];
 let lightColors = [];
+let raveMode = false;
+let raveColors = [];
 
 // HTML objects
 let webglCanvas;
@@ -42,6 +44,7 @@ let interfaceTopLeft;
 let interfaceTopRight;
 
 let cbLights = [];
+let cbRave;
 
 // Variable that keeps track of the mouse/canvas status
 let isMouseDown = false;
@@ -77,6 +80,8 @@ function htmlSetup() {
     cbLights.push(document.getElementById("cbLight3"));
     cbLights.push(document.getElementById("cbLight4"));
 
+    cbRave = document.getElementById("rave");
+
     // Setup functions
     document.onmousedown = function() { isMouseDown = true };
     document.onmouseup   = function() { isMouseDown = false };
@@ -105,6 +110,16 @@ function htmlSetup() {
         lightsEnabled.push(true);
         cb.checked = true;
         cb.onclick = function() { changeLightingSelection() };
+    }
+
+    // Disco mode
+    cbRave.checked = false;
+    cbRave.onclick = function() {
+        raveMode = cbRave.checked;
+    };
+
+    for (let i = 0; i < cbLights.length; i++) {
+        raveColors.push(i * 500);
     }
 
     // Resized canvas
@@ -858,10 +873,31 @@ function sumArray(array) {
 }
 
 function updateLightColour() {
-    // Set lights to all white
-    for (let i = 0; i < cbLights.length * 3; i++) {
-        lightColors[i] = 1.0;
+    if (raveMode) {
+        // Increment colours
+        for (let i = 0; i < raveColors.length; i++) {
+            raveColors[i] += 10;
+
+            if (raveColors[i] > 2000) {
+                raveColors[i] -= 2000;
+            }
+        }
+
+        // Set lights colours
+        for (let i = 0; i < cbLights.length; i++) {
+            [r, g, b] = HSVtoRGB(raveColors[i] / 2000.0, 1.0, 1.0);
+
+            lightColors[i * 3] = r;
+            lightColors[i * 3 + 1] = g;
+            lightColors[i * 3 + 2] = b;
+        }
+    } else {
+        // Set lights to all white
+        for (let i = 0; i < cbLights.length * 3; i++) {
+            lightColors[i] = 1.0;
+        }
     }
 
+    // Put into uniform
     drawInfo.gl.uniform3fv(drawInfo.u_LightColor, lightColors);
 }
