@@ -101,8 +101,8 @@ function htmlSetup() {
     };
 
     for (let cb of cbLights) {
-        lightsEnabled.push(false);
-        cb.checked = false;
+        lightsEnabled.push(true);
+        cb.checked = true;
         cb.onclick = function() { changeLightingSelection() };
     }
 
@@ -288,6 +288,7 @@ function changeLightingSelection() {
 }
 
 function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightIntensity, u_LightType) {
+    // Initialises the lights with their locations, types, and intensities
     let lightSources = new Float32Array([   // Coordinates
         10.0, 15.0, 24.0,
         -10.0, 15.0, 24.0,
