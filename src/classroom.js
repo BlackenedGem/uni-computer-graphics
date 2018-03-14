@@ -36,9 +36,13 @@ let frameTimeLabel;
 let doorAngle = 0;
 let lightsEnabled = [];
 let lightColors = [];
+
+const NUM_CHAIRS = 24;
+const CHAIR_MAX_MOVEMENT = 1;
+const CHAIR_MIN_MOVEMENT = -0.5;
+
 let selectedChair = -1;
 let chairPositions = [];
-const NUM_CHAIRS = 24;
 for (let i = 0; i < NUM_CHAIRS; i++) {
     chairPositions.push(0);
 }
@@ -274,18 +278,35 @@ function keyInputNotSmooth(ev) {
     }
 }
 
-/* Camera functions */
-
-function cameraMovement() {
+function keyInputSmooth() {
+    // Camera movement
     let amount = 0.3;
-
     if (keyboard[key.W]) { moveCameraForwards(amount); }
     if (keyboard[key.S]) { moveCameraForwards(-amount); }
     if (keyboard[key.UP]) { moveCameraUpwards(-amount); }
     if (keyboard[key.DOWN]) { moveCameraUpwards(amount); }
     if (keyboard[key.RIGHT]) { moveCameraSideways(-amount); }
     if (keyboard[key.LEFT]) { moveCameraSideways(amount); }
+
+    // Chair movement
+    if (keyboard[key.I] && selectedChair !== -1) {
+        // Move chair forwards
+        chairPositions[selectedChair] += 0.01;
+        if (chairPositions[selectedChair] > CHAIR_MAX_MOVEMENT) {
+            chairPositions[selectedChair] = CHAIR_MAX_MOVEMENT;
+        }
+    }
+
+    if (keyboard[key.I] && selectedChair !== -1) {
+        // Move chair backwards
+        chairPositions[selectedChair] -= 0.01;
+        if (chairPositions[selectedChair] < CHAIR_MIN_MOVEMENT) {
+            chairPositions[selectedChair] = CHAIR_MIN_MOVEMENT;
+        }
+    }
 }
+
+/* Camera functions */
 
 function moveCameraForwards(amount) {
     let x_move = Math.sin(degToRad(camera.azimuth)) * Math.cos(degToRad(camera.altitude));
@@ -505,7 +526,7 @@ function draw() {
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    cameraMovement();
+    keyInputSmooth();
     positionCamera(gl); // Position camera using the global camera object
     gl.uniform1i(u_isLighting, false); // Will not apply lighting
 
@@ -549,8 +570,8 @@ function draw() {
 
     // Draw 3 rows of chairs/tables
     for (let i = 0; i < 3; i++) {
-        drawRow(drawInfo, 9, 0, i * 8, i * 8 + 4);
-        drawRow(drawInfo, -9, 0, i * 8, i * 8);
+        drawRow(drawInfo, 9, 0, 16 - (i * 8), i * 8 + 4);
+        drawRow(drawInfo, -9, 0, 16 - (i * 8), i * 8);
     }
 
     // Draw desk at front
