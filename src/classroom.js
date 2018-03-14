@@ -40,7 +40,10 @@ let lightColors = [];
 const NUM_CHAIRS = 24;
 const CHAIR_MAX_MOVEMENT = 2.2;
 const CHAIR_MIN_MOVEMENT = -2.4;
+const CHAIR_TIMEOUT = 600;
+const CHAIR_TIMEOUT_FADESTART = 120;
 
+let chairTimer = 0;
 let selectedChair = -1;
 let chairPositions = [];
 for (let i = 0; i < NUM_CHAIRS; i++) {
@@ -268,13 +271,15 @@ function keyInputNotSmooth(ev) {
             if (selectedChair < -1) {
                 selectedChair = NUM_CHAIRS - 1;
             }
+            chairTimer = CHAIR_TIMEOUT;
             break;
         case key.O:
             selectedChair++;
             if (selectedChair >= NUM_CHAIRS) {
                 selectedChair = -1;
             }
-            break
+            chairTimer = CHAIR_TIMEOUT;
+            break;
     }
 }
 
@@ -295,6 +300,7 @@ function keyInputSmooth() {
         if (chairPositions[selectedChair] > CHAIR_MAX_MOVEMENT) {
             chairPositions[selectedChair] = CHAIR_MAX_MOVEMENT;
         }
+        chairTimer = CHAIR_TIMEOUT;
     }
 
     if (keyboard[key.K] && selectedChair !== -1) {
@@ -302,6 +308,16 @@ function keyInputSmooth() {
         chairPositions[selectedChair] -= 0.1;
         if (chairPositions[selectedChair] < CHAIR_MIN_MOVEMENT) {
             chairPositions[selectedChair] = CHAIR_MIN_MOVEMENT;
+        }
+        chairTimer = CHAIR_TIMEOUT;
+    }
+
+    // Update chair timer
+    if (chairTimer > 0) {
+        chairTimer--;
+
+        if (chairTimer === 0) {
+            selectedChair = -1;
         }
     }
 }
@@ -860,7 +876,12 @@ function drawChair(drawInfo, x, y, z, colour, chairID = -2) {
 
     // Increase ambient lighting if chair is selected
     if (chairID === selectedChair) {
-        drawInfo.gl.uniform1f(drawInfo.u_Ambient, 0.5);
+        let extraAmbient = 0.5;
+        if (chairTimer < CHAIR_TIMEOUT_FADESTART) {
+            extraAmbient *= (chairTimer / CHAIR_TIMEOUT_FADESTART);
+        }
+
+        drawInfo.gl.uniform1f(drawInfo.u_Ambient, extraAmbient);
     }
 
     // Translate chair according to user input
