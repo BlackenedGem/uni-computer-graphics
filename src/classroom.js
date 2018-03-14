@@ -32,7 +32,7 @@ let frameTimeLabel;
 
 // Variables to keep track of dynamic objects
 let doorAngle = 0;
-let lightsEnabled = [true, true, true, true];
+let lightsEnabled = [];
 
 // HTML objects
 let webglCanvas;
@@ -101,8 +101,9 @@ function htmlSetup() {
     };
 
     for (let cb of cbLights) {
+        lightsEnabled.push(false);
+        cb.checked = false;
         cb.onclick = function() { changeLightingSelection() };
-        cb.checked = true;
     }
 
     // Resized canvas
@@ -144,18 +145,18 @@ function main() {
     let u_LightIntensity = gl.getUniformLocation(gl.program, 'u_LightIntensity');
     let u_LightEnabled = gl.getUniformLocation(gl.program, 'u_LightEnabled');
     let u_LightType = gl.getUniformLocation(gl.program, 'u_LightType');
+    let u_ExtraAmbient = gl.getUniformLocation(gl.program, 'u_ExtraAmbient');
     let u_Color = gl.getUniformLocation(gl.program, 'u_Color');
 
     // Trigger using lighting or not
     let u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
 
-    /*
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
-        !u_ProjMatrix || !u_LightColor || !u_LightPosition ||
-        !u_isLighting || !u_Color) {
+        !u_ProjMatrix || !u_LightColor || !u_LightSources || !u_LightIntensity ||
+        !u_LightEnabled || !u_LightType || !u_ExtraAmbient || !u_isLighting || !u_Color) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
-    }*/ // Disabled because it doesn't actually work properly
+    }
 
     camera.u_ViewMatrix = u_ViewMatrix;
     camera.u_ProjMatrix = u_ProjMatrix;
@@ -174,7 +175,8 @@ function main() {
         u_NormalMatrix: u_NormalMatrix,
         u_Color: u_Color,
         u_isLighting: u_isLighting,
-        u_LightEnabled: u_LightEnabled
+        u_LightEnabled: u_LightEnabled,
+        u_ExtraAmbient: u_ExtraAmbient
     };
 
     init = true;
@@ -287,10 +289,10 @@ function changeLightingSelection() {
 
 function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightIntensity, u_LightType) {
     let lightSources = new Float32Array([   // Coordinates
-        10.0, 16.0, 24.0,
-        -10.0, 16.0, 24.0,
-        10.0, 16.0, 4.0,
-        -10.0, 16.0, 4.0
+        10.0, 15.0, 24.0,
+        -10.0, 15.0, 24.0,
+        10.0, 15.0, 4.0,
+        -10.0, 15.0, 4.0
     ]);
 
     let lightIntensities = new Float32Array([
@@ -300,7 +302,6 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightInte
        5.0, 0.0
     ]);
 
-    lightsEnabled = [true, true, true, true];
     let lightType = [true, true, true, true];
 
     gl.uniform3fv(u_LightSources, lightSources);
@@ -569,7 +570,7 @@ function drawCeiling(drawInfo, width, depth, height) {
     // Model lights
     // Do this in a loop
     // Array is a bunch of x/y multiplicative offsets
-    let lightOffsets = [1, 1, -1, 1, -1, -1, 1, -1];
+    let lightOffsets = [1, 1, -1, 1, 1, -1, -1, -1];
 
     let lightOffsetX = (width / 4);
     let lightOffsetZ = (depth / 4);
@@ -578,9 +579,21 @@ function drawCeiling(drawInfo, width, depth, height) {
         modelMatrix = topMatrix();
         modelMatrix.translate(lightOffsetX * lightOffsets[i], height - 1, lightOffsetZ * lightOffsets[i + 1]);  // Translation
         modelMatrix.scale(2.5, 1.0, 2.5); // Scale
+
+        // Change the colour depending on whether the light is on or not
+        if (lightsEnabled[i / 2]) {
+            drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.976, 1, 0.757, 1]);
+            drawInfo.gl.uniform1i(drawInfo.u_ExtraAmbient, true);
+            console.log(drawInfo.gl.getUniform(drawInfo.gl.program, drawInfo.u_ExtraAmbient));
+        } else {
+            drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.8, 0.8, 0.8, 1]);
+            drawInfo.gl.uniform1i(drawInfo.u_ExtraAmbient, false);
+        }
+
         drawBox(drawInfo);
     }
 
+    drawInfo.gl.uniform1i(drawInfo.u_ExtraAmbient, false);
     modelMatrix = popMatrix();
 }
 

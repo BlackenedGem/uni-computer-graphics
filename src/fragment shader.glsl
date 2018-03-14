@@ -16,6 +16,8 @@ uniform vec2 u_LightIntensity[numLights]; // Intensity of light. For spot light 
 uniform bool u_LightType[numLights]; // Whether light source is spot or directional
 uniform bool u_LightEnabled[numLights]; // Whether light source is enabled or not
 
+uniform bool u_ExtraAmbient;
+
 // Varyings
 varying vec3 v_Normal;
 varying vec3 v_Position;
@@ -53,11 +55,19 @@ void main() {
         } else {
             lightDirection = u_LightSources[i];
         }
-
-
     }
 
     vec3 diffuse = u_LightColor * u_Color.rgb * spotLightIntensity;
-    vec3 ambient = 0.2 * u_Color.rgb;
+
+    // Toggle if the light is an actual light source
+    vec3 ambient;
+    if (u_ExtraAmbient) {
+        ambient = 0.6 * u_Color.rgb;
+        diffuse *= 0.5;
+    } else {
+        ambient = 0.05 * u_Color.rgb;
+    }
+
+
     gl_FragColor = vec4(diffuse + ambient, u_Color.a);
 }
