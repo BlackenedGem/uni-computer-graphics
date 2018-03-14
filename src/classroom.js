@@ -601,7 +601,15 @@ function drawCeiling(drawInfo, width, depth, height) {
 
         // Change the colour depending on whether the light is on or not
         if (lightsEnabled[i / 2]) {
-            drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.976, 1, 0.757, 1]);
+            // Different colour if we're using rave mode
+            if (raveMode) {
+                let raveColor = HSVtoRGB(raveColors[i / 2] / 2000, 1.0, 1.0);
+                raveColor.push(1.0);
+                drawInfo.gl.uniform4fv(drawInfo.u_Color, raveColor);
+            } else {
+                drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.976, 1, 0.757, 1]);
+            }
+
             drawInfo.gl.uniform1i(drawInfo.u_ExtraAmbient, true);
         } else {
             drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.8, 0.8, 0.8, 1]);
