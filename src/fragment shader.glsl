@@ -10,7 +10,7 @@ uniform bool u_isLighting;
 
 // Lighting information
 uniform vec3 u_AmbientColor;// Global light colour
-uniform bool u_ExtraAmbient; // Whether the object is a light source so should have additional light
+uniform float u_Ambient; // Amount of ambient light
 
 const int numLights = 4;
 uniform vec3 u_LightSources[numLights]; // Info of individual lightsource. Either position or direction (x, y, z)
@@ -62,13 +62,7 @@ void main() {
     }
 
     // Toggle if the light is an actual light source
-    vec3 ambient;
-    if (u_ExtraAmbient) {
-        ambient = 0.4 * u_Color.rgb;
-        diffuse *= 0.8;
-    } else {
-        ambient = 0.05 * u_Color.rgb;
-    }
+    vec3 ambient = u_Ambient * u_Color.rgb;
 
     gl_FragColor = vec4(diffuse + ambient, u_Color.a);
 }

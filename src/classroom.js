@@ -1,5 +1,4 @@
 // region Global variables
-
 let init = false;
 
 // Vertex shader program
@@ -81,6 +80,7 @@ keyboard = {};
 
 // Variable to store GL information and matrices to avoid constant parameter passing
 let drawInfo;
+const DEFAULT_AMBIENT = 0.05; // Default ambient light
 
 //endregion
 
@@ -188,7 +188,7 @@ function main() {
     let u_LightIntensity = gl.getUniformLocation(gl.program, 'u_LightIntensity');
     let u_LightEnabled = gl.getUniformLocation(gl.program, 'u_LightEnabled');
     let u_LightType = gl.getUniformLocation(gl.program, 'u_LightType');
-    let u_ExtraAmbient = gl.getUniformLocation(gl.program, 'u_ExtraAmbient');
+    let u_Ambient = gl.getUniformLocation(gl.program, 'u_Ambient');
     let u_Color = gl.getUniformLocation(gl.program, 'u_Color');
 
     // Trigger using lighting or not
@@ -196,7 +196,7 @@ function main() {
 
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
         !u_ProjMatrix || !u_LightColor || !u_LightSources || !u_LightIntensity ||
-        !u_LightEnabled || !u_LightType || !u_ExtraAmbient || !u_isLighting || !u_Color) {
+        !u_LightEnabled || !u_LightType || !u_Ambient || !u_isLighting || !u_Color) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
     }
@@ -209,7 +209,7 @@ function main() {
         u_Color: u_Color,
         u_isLighting: u_isLighting,
         u_LightEnabled: u_LightEnabled,
-        u_ExtraAmbient: u_ExtraAmbient,
+        u_Ambient: u_Ambient,
         u_LightColor: u_LightColor,
         u_LightIntensity: u_LightIntensity
     };
@@ -518,6 +518,7 @@ function draw() {
     gl.drawArrays(gl.LINES, 0, n);
 
     gl.uniform1i(u_isLighting, true); // Will apply lighting
+    drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
     gl.uniform1iv(drawInfo.u_LightEnabled, lightsEnabled); // Which lights to turn on
 
     // Set the vertex coordinates and color (for the cube)
@@ -636,16 +637,16 @@ function drawCeiling(drawInfo, width, depth, height) {
                 drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.976, 1, 0.757, 1]);
             }
 
-            drawInfo.gl.uniform1i(drawInfo.u_ExtraAmbient, true);
+            drawInfo.gl.uniform1f(drawInfo.u_Ambient, 0.4);
         } else {
             drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.8, 0.8, 0.8, 1]);
-            drawInfo.gl.uniform1i(drawInfo.u_ExtraAmbient, false);
+            drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
         }
 
         drawBox(drawInfo);
     }
 
-    drawInfo.gl.uniform1i(drawInfo.u_ExtraAmbient, false);
+    drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
     modelMatrix = popMatrix();
 }
 
