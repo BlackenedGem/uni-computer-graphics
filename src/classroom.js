@@ -38,8 +38,8 @@ let lightsEnabled = [];
 let lightColors = [];
 
 const NUM_CHAIRS = 24;
-const CHAIR_MAX_MOVEMENT = 1;
-const CHAIR_MIN_MOVEMENT = -0.5;
+const CHAIR_MAX_MOVEMENT = 2.2;
+const CHAIR_MIN_MOVEMENT = -2.4;
 
 let selectedChair = -1;
 let chairPositions = [];
@@ -291,15 +291,15 @@ function keyInputSmooth() {
     // Chair movement
     if (keyboard[key.I] && selectedChair !== -1) {
         // Move chair forwards
-        chairPositions[selectedChair] += 0.01;
+        chairPositions[selectedChair] += 0.1;
         if (chairPositions[selectedChair] > CHAIR_MAX_MOVEMENT) {
             chairPositions[selectedChair] = CHAIR_MAX_MOVEMENT;
         }
     }
 
-    if (keyboard[key.I] && selectedChair !== -1) {
+    if (keyboard[key.K] && selectedChair !== -1) {
         // Move chair backwards
-        chairPositions[selectedChair] -= 0.01;
+        chairPositions[selectedChair] -= 0.1;
         if (chairPositions[selectedChair] < CHAIR_MIN_MOVEMENT) {
             chairPositions[selectedChair] = CHAIR_MIN_MOVEMENT;
         }
@@ -849,21 +849,26 @@ function drawTable(drawInfo, x, y, z, width, colour) {
 }
 
 function drawChair(drawInfo, x, y, z, colour, chairID = -2) {
-    // Default values
+    pushMatrix(modelMatrix);
+
+    // Default colour value
     if (!colour) {
         colour = [0.137, 0.576, 0.278, 1]; // Green colour
     }
+    // Set the seat colour
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, colour);
 
     // Increase ambient lighting if chair is selected
     if (chairID === selectedChair) {
         drawInfo.gl.uniform1f(drawInfo.u_Ambient, 0.5);
     }
 
-    // Set the seat colour to green
-    drawInfo.gl.uniform4fv(drawInfo.u_Color, colour);
-
-    pushMatrix(modelMatrix);
-    modelMatrix.translate(x, y, z);  // Translation
+    // Translate chair according to user input
+    let chairOffset = 0;
+    if (chairID >= 0) {
+        chairOffset = chairPositions[chairID]
+    }
+    modelMatrix.translate(x, y, z + chairOffset);  // Translation
 
     // Model the chair seat
     pushMatrix(modelMatrix);
