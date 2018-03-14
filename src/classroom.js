@@ -603,9 +603,10 @@ function drawCeiling(drawInfo, width, depth, height) {
     let lightOffsetX = (width / 4);
     let lightOffsetZ = (depth / 4);
 
+    // Iterate over the lights
     for (let i = 0; i < lightOffsets.length; i += 2) {
         modelMatrix = topMatrix();
-        modelMatrix.translate(lightOffsetX * lightOffsets[i], height - 1, lightOffsetZ * lightOffsets[i + 1]);  // Translation
+        modelMatrix.translate(lightOffsetX * lightOffsets[i], height - 0.5, lightOffsetZ * lightOffsets[i + 1]);  // Translation
         modelMatrix.scale(2.5, 1.0, 2.5); // Scale
 
         // Change the colour depending on whether the light is on or not
