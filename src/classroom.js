@@ -260,9 +260,17 @@ function keyInputNotSmooth(ev) {
     // Handle selection of chairs
     switch (ev.keyCode) {
         case key.U:
+            selectedChair--;
+            if (selectedChair < -1) {
+                selectedChair = NUM_CHAIRS - 1;
+            }
             break;
         case key.O:
-            break;
+            selectedChair++;
+            if (selectedChair >= NUM_CHAIRS) {
+                selectedChair = -1;
+            }
+            break
     }
 }
 
@@ -541,8 +549,8 @@ function draw() {
 
     // Draw 3 rows of chairs/tables
     for (let i = 0; i < 3; i++) {
-        drawRow(drawInfo, 9, 0, i * 8, i * 8);
-        drawRow(drawInfo, -9, 0, i * 8, i * 8 + 4);
+        drawRow(drawInfo, 9, 0, i * 8, i * 8 + 4);
+        drawRow(drawInfo, -9, 0, i * 8, i * 8);
     }
 
     // Draw desk at front
@@ -825,6 +833,11 @@ function drawChair(drawInfo, x, y, z, colour, chairID = -2) {
         colour = [0.137, 0.576, 0.278, 1]; // Green colour
     }
 
+    // Increase ambient lighting if chair is selected
+    if (chairID === selectedChair) {
+        drawInfo.gl.uniform1f(drawInfo.u_Ambient, 0.5);
+    }
+
     // Set the seat colour to green
     drawInfo.gl.uniform4fv(drawInfo.u_Color, colour);
 
@@ -859,6 +872,11 @@ function drawChair(drawInfo, x, y, z, colour, chairID = -2) {
         modelMatrix.scale(0.25, 2.0, 0.25); // Scale
         drawBox(drawInfo);
         modelMatrix = popMatrix();
+    }
+
+    // Revert ambient lighting if chair is selected
+    if (chairID === selectedChair) {
+        drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
     }
 
     modelMatrix = popMatrix();
