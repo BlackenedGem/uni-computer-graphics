@@ -2,7 +2,7 @@
 // Track initialisation state
 let initMain = false;
 let initCounter = 0;
-const INIT_AMOUNT = 2;
+const INIT_AMOUNT = 5;
 
 // Vertex/fragment shader programs
 let VSHADER_SOURCE;
@@ -454,12 +454,12 @@ function initVertexBuffers(gl) {
     ]);
 
     let textures = new Float32Array([
-        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
-        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
-        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
-        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
-        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
         0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
+        0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
+        0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
+        0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
+        0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
+        0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0
     ]);
 
     // Indices of the vertices
@@ -651,7 +651,7 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     // Surprisingly uses the colour white
     // We make it a bit lighter using u_DiffuseMultiplier
     modelMatrix = topMatrix();
-    enableTextures(1);
+    enableTextures(0);
     if (daytime) {
         drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.4);
     } else {
@@ -904,8 +904,8 @@ function drawRow(drawInfo, x, y, z, chairIDOffset) {
         drawChair(drawInfo, (i * 3) - 4.5, 0, 0, null, chairIDOffset + i);
     }
 
-    drawTable(drawInfo, -3.05, 0, 3);
-    drawTable(drawInfo, 3.05, 0, 3);
+    drawTable(drawInfo, -3.05, 0, 3, null, null, true);
+    drawTable(drawInfo, 3.05, 0, 3, null, null, true);
 
     modelMatrix = popMatrix();
 }
@@ -934,7 +934,7 @@ function drawTable(drawInfo, x, y, z, width, colour, useTexture = false) {
     drawBox(drawInfo);
     modelMatrix = popMatrix();
     if (useTexture) {
-        enableTextures(3);
+        disableTextures();
     }
 
     // Set the leg colour to dark grey
@@ -1154,7 +1154,7 @@ function initTextures(gl) {
     loadTexture("whiteboard.png", gl.TEXTURE0, drawInfo.u_Sampler);
     loadTexture("carpet.jpg", gl.TEXTURE1, drawInfo.u_Sampler);
     loadTexture("hallway.jpg", gl.TEXTURE2, drawInfo.u_Sampler);
-    loadTexture("wood.jpg", gl.TEXTURE2, drawInfo.u_Sampler);
+    loadTexture("wood.jpg", gl.TEXTURE3, drawInfo.u_Sampler);
 
     return true;
 }
