@@ -224,6 +224,13 @@ function main() {
         return;
     }
 
+    // Set the vertex coordinates and color (for the cube)
+    let n = initVertexBuffers(gl);
+    if (n < 0) {
+        console.log('Failed to set the vertex information');
+        return;
+    }
+
     // Reduce parameters when calling drawBox by storing in an object
     drawInfo = {
         gl: gl,
@@ -235,7 +242,8 @@ function main() {
         u_Ambient: u_Ambient,
         u_LightColor: u_LightColor,
         u_LightIntensity: u_LightIntensity,
-        u_DiffuseMult: u_DiffuseMult
+        u_DiffuseMult: u_DiffuseMult,
+        n: n
     };
 
     camera.u_ViewMatrix = u_ViewMatrix;
@@ -573,33 +581,14 @@ function draw() {
     positionCamera(gl); // Position camera using the global camera object
     gl.uniform1i(u_isLighting, false); // Will not apply lighting
 
-    // Set the vertex coordinates and color (for the x, y axes)
-    let n = initAxesVertexBuffers(gl);
-    if (n < 0) {
-        console.log('Failed to set the vertex information');
-        return;
-    }
-
     // Calculate the view matrix and the projection matrix
     modelMatrix.setTranslate(0, 0, 0);  // No Translation
     // Pass the model matrix to the uniform variable
     gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
 
-    // Draw x and y axes
-    gl.uniform4fv(u_Color, [0.5, 0.5, 0.5, 0]);
-    gl.drawArrays(gl.LINES, 0, n);
-
     gl.uniform1i(u_isLighting, true); // Will apply lighting
     drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
     gl.uniform1iv(drawInfo.u_LightEnabled, lightsEnabled); // Which lights to turn on
-
-    // Set the vertex coordinates and color (for the cube)
-    n = initVertexBuffers(gl);
-    if (n < 0) {
-        console.log('Failed to set the vertex information');
-        return;
-    }
-    drawInfo.n = n;
 
     // Update lighting colours
     updateLightColour();
@@ -1157,6 +1146,24 @@ function updateLightColour() {
 function loadShaders() {
     VSHADER_SOURCE = loadLocalFile('vertex shader.glsl');
     FSHADER_SOURCE = loadLocalFile('fragment shader.glsl');
+}
+
+function initTextures(gl, n) {
+    let texture = gl.createTexture();
+
+    let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
+    if (!u_Sampler) {
+        console.log('Failed to Get the storage location of sampler uniform');
+        return false;
+    }
+
+    let image = new Image();
+    image.onload = function() {
+        loadTexture(gl, n, texture, u_Sampler, image);
+    };
+    image.src = "whiteboard.png";
+
+    return true;
 }
 
 function loadTexture(gl, n, texture, u_Sampler, image) {
