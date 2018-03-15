@@ -590,10 +590,9 @@ function draw() {
         drawRow(drawInfo, -9, 0, 16 - (i * 8), i * 8);
     }
 
-    // Draw desk at front
+    // Draw front elements
     drawFrontDesk(drawInfo, 10.5, 0, 26.5);
-
-    // Draw door
+    drawWhiteboard(drawInfo, -5, 9, 33, 18, 10);
     drawDoor(drawInfo, -19.5, 0, 33);
 
     // End timer and update
@@ -601,6 +600,27 @@ function draw() {
 
     // Make it so that draw is called again when needed
     window.requestAnimationFrame(draw);
+}
+
+function drawWhiteboard(drawInfo, x, y, z, width, height) {
+    // Draws the whiteboard
+    // x/y/z refers to the centre of the whiteboard, with the z being the very back of the whiteboard (touching the wall)
+    pushMatrix(modelMatrix);
+
+    let depth = 0.2;
+
+    modelMatrix.translate(x, y, z - depth / 2);
+
+    // The whiteboard
+    // Surprisingly uses the colour white
+    // We make it a bit lighter using u_DiffuseMultiplier
+    drawInfo.gl.uniform1f(drawInfo.u_Ambient, 0.2);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 1, 1, 1]);
+    modelMatrix.scale(width, height, depth);
+    drawBox(drawInfo);
+    drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
+
+    modelMatrix = popMatrix();
 }
 
 function drawDoor(drawInfo, x, y, z) {
