@@ -145,9 +145,12 @@ function htmlSetup() {
 
     for (let cb of cbLights) {
         lightsEnabled.push(true);
+        lightColors.push(1.0, 1.0 ,1.0);
         cb.checked = true;
         cb.onclick = function() { changeLightingSelection() };
     }
+    lightColors.push(1.0, 1.0 ,1.0);
+    lightsEnabled.push(true);
 
     // Daytime
     cbDaytime.checked = true;
@@ -384,14 +387,19 @@ function positionCamera(gl) {
 
 function initLightSourceUniforms(gl, u_LightSources, u_LightType) {
     // Initialises the lights with their locations, types, and intensities
-    let lightSources = new Float32Array([   // Coordinates
+    let lightSources = [
+        // Position
         10.0, 15.0, 24.0,
         -10.0, 15.0, 24.0,
         10.0, 15.0, 4.0,
-        -10.0, 15.0, 4.0
-    ]);
+        -10.0, 15.0, 4.0,
 
-    let lightType = [true, true, true, true];
+        // Directional light
+        2, 1, -1
+    ];
+    lightSources = new Float32Array(lightSources);
+
+    let lightType = [true, true, true, true, false];
 
     gl.uniform3fv(u_LightSources, lightSources);
     gl.uniform1iv(drawInfo.u_LightEnabled, lightsEnabled);
@@ -399,25 +407,6 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightType) {
     gl.uniform1f(drawInfo.u_DiffuseMult, 1.0);
 
     updateLightIntensities(false);
-}
-
-function updateLightIntensities(raveMode = false) {
-    let dropoff = 10.0;
-    let intensity = 1.2;
-
-    if (raveMode) {
-        intensity = 1.0;
-        dropoff = 13.0;
-    }
-
-    let lightIntensities = new Float32Array([
-        intensity , dropoff,
-        intensity , dropoff,
-        intensity , dropoff,
-        intensity , dropoff
-    ]);
-
-    drawInfo.gl.uniform2fv(drawInfo.u_LightIntensity, lightIntensities);
 }
 
 function initVertexBuffers(gl) {
@@ -552,12 +541,16 @@ function draw() {
     // Start timer
     let startTime = performance.now();
 
-    // Clear color and depth buffer
+    // Change clear colour and enable/disable directional lighting depending on whether it's daytime or not
     if (daytime) {
         gl.clearColor(0.722, 0.914, 0.988, 1.0);
+        lightsEnabled[lightsEnabled.length - 1] = true;
     } else {
         gl.clearColor(0, 0, 0, 1.0);
+        lightsEnabled[lightsEnabled.length - 1] = false;
     }
+
+    // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     keyInputSmooth();
@@ -1068,13 +1061,6 @@ function topMatrix() {
 
 /* Update functions */
 
-function changeLightingSelection() {
-    // Change the array determining which lights are turned on
-    for (let i = 0; i < cbLights.length; i++) {
-        lightsEnabled[i] = cbLights[i].checked;
-    }
-}
-
 function updateFPS(renderTime) {
     frameTimes[nextFrame] = renderTime;
     nextFrame++;
@@ -1088,6 +1074,36 @@ function updateFPS(renderTime) {
 
         frameTimeLabel.innerText = "Avg. Frame Time: " + frameTime.toFixed(2) + "ms";
     }
+}
+
+function changeLightingSelection() {
+    // Change the array determining which lights are turned on
+    for (let i = 0; i < cbLights.length; i++) {
+        lightsEnabled[i] = cbLights[i].checked;
+    }
+}
+
+function updateLightIntensities(raveMode = false) {
+    let dropoff = 10.0;
+    let intensity = 1.2;
+
+    if (raveMode) {
+        intensity = 1.0;
+        dropoff = 13.0;
+    }
+
+    let lightIntensities = new Float32Array([
+        // Positional lights
+        intensity, dropoff,
+        intensity, dropoff,
+        intensity, dropoff,
+        intensity, dropoff,
+
+        // Directional light
+        0.5, 0
+    ]);
+
+    drawInfo.gl.uniform2fv(drawInfo.u_LightIntensity, lightIntensities);
 }
 
 function updateLightColour() {

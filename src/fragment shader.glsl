@@ -13,7 +13,7 @@ uniform vec3 u_AmbientColor;// Global light colour
 uniform float u_Ambient; // Amount of ambient light
 uniform float u_DiffuseMult; // Nifty value we can use to make a surface appear brighter than it would be naturally
 
-const int numLights = 4;
+const int numLights = 5;
 uniform vec3 u_LightSources[numLights]; // Info of individual lightsource. Either position or direction (x, y, z)
 uniform vec2 u_LightIntensity[numLights]; // Intensity of light. For spot light contains drop off factor
 uniform bool u_LightType[numLights]; // Whether light source is spot or directional
@@ -55,10 +55,9 @@ void main() {
             float nDotL = max(dot(lightDirection, v_Normal), 0.0);
             diffuse += u_LightColor[i] * u_Color.rgb * nDotL * lightIntensity;
         } else {
-            lightDirection = u_LightSources[i];
-
+            lightDirection = normalize(u_LightSources[i]);
             float nDotL = max(dot(lightDirection, v_Normal), 0.0);
-            diffuse += nDotL * u_LightColor[i] * lightIntensity;
+            diffuse += nDotL * u_LightColor[i] * u_Color.rgb * lightIntensity;
         }
     }
 
