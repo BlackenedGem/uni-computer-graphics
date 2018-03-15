@@ -769,9 +769,13 @@ function drawClassroomSides(drawInfo, width, depth, height) {
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.749, 0.341, 0.341, 1]);
 
     // Model the floor
+    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, true);
+    drawInfo.gl.uniform1i(drawInfo.u_Sampler, 1);
     modelMatrix.translate(0, -0.5, 0);
-    modelMatrix.scale(width, 1, depth); // Scale
+    modelMatrix.rotate(90, 1, 0, 0);
+    modelMatrix.scale(width, depth, 1); // Scale
     drawBox(drawInfo);
+    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, false);
 
     // Set the colour to Blue
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.859, 0.961, 1, 1]);
@@ -1124,7 +1128,7 @@ function loadShaders() {
 
 function initTextures(gl) {
     loadTexture("whiteboard.png", gl.TEXTURE0, drawInfo.u_Sampler);
-    loadTexture("testing texture.png", gl.TEXTURE1, drawInfo.u_Sampler);
+    loadTexture("carpet.jpg", gl.TEXTURE1, drawInfo.u_Sampler);
 
     return true;
 }
