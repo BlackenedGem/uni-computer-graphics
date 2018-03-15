@@ -1119,41 +1119,47 @@ function loadShaders() {
     FSHADER_SOURCE = loadLocalFile('fragment shader.glsl');
 }
 
-function initTextures(gl, n) {
-    let texture = gl.createTexture();
-
-    if (!texture) {
-        console.log("Could not create texture");
-    }
-
+function initTextures(gl) {
     let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
     if (!u_Sampler) {
         console.log('Failed to Get the storage location of sampler uniform');
         return false;
     }
 
-    let image = new Image();
-    image.onload = function() {
-        onLoadTexture(gl, n, texture, u_Sampler, image);
-    };
-    image.src = "whiteboard.png";
+    loadTexture("whiteboard.png", gl.TEXTURE0, u_Sampler, false);
 
     return true;
 }
 
-function loadTexture(src, textureBinder, u_Sampler) {
+function loadTexture(src, textureBinder, u_Sampler, repeat) {
+    let texture = drawInfo.gl.createTexture();
 
+    if (!texture) {
+        console.log("Could not create texture");
+    }
+
+    let image = new Image();
+    image.onload = function() {
+        onLoadTexture(drawInfo.gl, drawInfo.n, texture, u_Sampler, image, textureBinder, repeat);
+    };
+    image.src = src;
 }
 
-function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture) {
+function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture, repeat = true) {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
 
     gl.activeTexture(bindTexture);
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    if (repeat) {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    } else {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
     gl.uniform1i(u_Sampler, 0);
