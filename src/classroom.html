@@ -57,6 +57,16 @@
             <p>U/O - Select chair</p>
             <p>I/K - Move chair</p>
         </div>
+
+        <div class="controls" id="bottomright">
+            <h3>Camera</h3>
+            <p id="FOVLabel">FOV - 90</p>
+            <input type="range" min="30" max="100" value="90" class="slider" id="FOV">
+
+            <div class="space"></div>
+            <input type="checkbox" id="cbCameraBounds"/>
+            <label for="cbCameraBounds">Disable camera bounds</label>
+        </div>
     </div>
 
     <script src="../lib/webgl-utils.js"></script>

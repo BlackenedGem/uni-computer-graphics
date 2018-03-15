@@ -36,6 +36,21 @@ h3 {
     left: 20px;
 }
 
+#topright {
+    top: 20px;
+    right: 20px;
+}
+
+#bottomleft {
+    bottom: 20px;
+    left: 20px;
+}
+
+#bottomright {
+    bottom: 20px;
+    right: 20px;
+}
+
 #container {
     position: relative;
     padding: 0;
@@ -48,16 +63,6 @@ html, body {
     padding: 0;
     height: 100%;
     width: 100%;
-}
-
-#topright {
-    top: 20px;
-    right: 20px;
-}
-
-#bottomleft {
-    bottom: 20px;
-    left: 20px;
 }
 
 #webgl {
