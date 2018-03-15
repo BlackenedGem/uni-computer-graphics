@@ -800,6 +800,8 @@ function drawClassroomSides(drawInfo, width, depth, height) {
     modelMatrix.scale(1, height - 12, 6);
     drawBox(drawInfo);
 
+    // Draw the 'hallway' for when the door is opened
+    
 
     // Draw the wall with windows
     modelMatrix = topMatrix();
@@ -1129,6 +1131,7 @@ function loadShaders() {
 function initTextures(gl) {
     loadTexture("whiteboard.png", gl.TEXTURE0, drawInfo.u_Sampler);
     loadTexture("carpet.jpg", gl.TEXTURE1, drawInfo.u_Sampler);
+    loadTexture("hallway.jpg", gl.TEXTURE2, drawInfo.u_Sampler);
 
     return true;
 }
