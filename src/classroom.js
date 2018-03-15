@@ -801,7 +801,15 @@ function drawClassroomSides(drawInfo, width, depth, height) {
     drawBox(drawInfo);
 
     // Draw the 'hallway' for when the door is opened
-    
+    modelMatrix = topMatrix();
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 0, 0, 1]);
+    //drawInfo.gl.uniform1i(drawInfo.u_UseTextures, true);
+    //drawInfo.gl.uniform1i(drawInfo.u_Sampler, 2);
+
+    modelMatrix.translate((width / -2) - 0.5, 6, (depth / 2) - 3.5);
+    modelMatrix.scale(1, 12, 5);
+    drawBox(drawInfo);
+    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, false);
 
     // Draw the wall with windows
     modelMatrix = topMatrix();
