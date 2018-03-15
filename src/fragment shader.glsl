@@ -56,6 +56,8 @@ void main() {
 
         vec3 lightDirection;
         if (u_LightType[i]) {
+            // Spot/positional lighting
+
             vec3 lightPosition = vec3(u_LightSources[i]);
             lightDirection = normalize(u_LightSources[i] - v_Position);
 
@@ -68,6 +70,7 @@ void main() {
             float nDotL = max(dot(lightDirection, v_Normal), 0.0);
             diffuse += lightColor  * pixelColor.rgb * nDotL * lightIntensity;
         } else {
+            // Support directional lighting, although we don't use this in the final version because it looks bad
             lightDirection = normalize(u_LightSources[i]);
             float nDotL = max(dot(lightDirection, v_Normal), 0.0);
             diffuse += nDotL * lightColor * pixelColor.rgb * lightIntensity;
