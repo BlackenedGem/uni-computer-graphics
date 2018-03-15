@@ -8,6 +8,9 @@ uniform vec4 u_Color;
 // Enable/disable lighting
 uniform bool u_isLighting;
 
+// Texture information
+uniform bool u_UseTextures;
+
 // Lighting information
 uniform vec3 u_AmbientColor;// Global light colour
 uniform float u_Ambient; // Amount of ambient light
@@ -31,6 +34,12 @@ void main() {
         return;
     }
 
+    vec4 pixelColor;
+    if (u_UseTextures) {
+    } else {
+        pixelColor = u_Color;
+    }
+
     vec3 diffuse;
 
     for (int i = 0; i < numLights; i++) {
@@ -40,6 +49,7 @@ void main() {
         }
 
         float lightIntensity = u_LightIntensity[i].x;
+        vec3 lightColor = u_LightColor[i];
 
         vec3 lightDirection;
         if (u_LightType[i]) {
@@ -53,16 +63,16 @@ void main() {
             // Calculate the light direction and make it 1.0 in length
             // Dot product of light direction and normal
             float nDotL = max(dot(lightDirection, v_Normal), 0.0);
-            diffuse += u_LightColor[i] * u_Color.rgb * nDotL * lightIntensity;
+            diffuse += lightColor  * pixelColor.rgb * nDotL * lightIntensity;
         } else {
             lightDirection = normalize(u_LightSources[i]);
             float nDotL = max(dot(lightDirection, v_Normal), 0.0);
-            diffuse += nDotL * u_LightColor[i] * u_Color.rgb * lightIntensity;
+            diffuse += nDotL * lightColor * pixelColor.rgb * lightIntensity;
         }
     }
 
     // Toggle if the light is an actual light source
-    vec3 ambient = u_Ambient * u_Color.rgb;
+    vec3 ambient = u_Ambient * pixelColor.rgb;
 
-    gl_FragColor = vec4(diffuse * u_DiffuseMult + ambient, u_Color.a);
+    gl_FragColor = vec4(diffuse * u_DiffuseMult + ambient, pixelColor.a);
 }
