@@ -9,6 +9,7 @@ uniform vec4 u_Color;
 uniform bool u_isLighting;
 
 // Texture information
+uniform sampler2D u_Sampler;
 uniform bool u_UseTextures;
 
 // Lighting information
@@ -26,6 +27,7 @@ uniform vec3 u_LightColor[numLights]; // Colour of the light
 // Varyings
 varying vec3 v_Normal;
 varying vec3 v_Position;
+varying vec2 v_TexCoord;
 
 void main() {
     // Disable lighting if flag set
@@ -36,6 +38,7 @@ void main() {
 
     vec4 pixelColor;
     if (u_UseTextures) {
+        //pixelColor = texture2D(u_Sampler, v_TexCoord);
     } else {
         pixelColor = u_Color;
     }

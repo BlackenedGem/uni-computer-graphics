@@ -426,7 +426,6 @@ function initVertexBuffers(gl) {
         0.5,-0.5,-0.5,  -0.5,-0.5,-0.5,  -0.5, 0.5,-0.5,   0.5, 0.5,-0.5  // v4-v7-v6-v5 back
     ]);
 
-
     let normals = new Float32Array([    // Normal
         0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,   0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
         1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,   1.0, 0.0, 0.0,  // v0-v3-v4-v5 right
@@ -436,6 +435,14 @@ function initVertexBuffers(gl) {
         0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0,   0.0, 0.0,-1.0   // v4-v7-v6-v5 back
     ]);
 
+    let textures = new Float32Array([
+        1.0, 1.0,   0.0, 1.0,   0.0, 0.0,   1.0, 0.0,
+        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
+        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
+        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
+        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
+        0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
+    ]);
 
     // Indices of the vertices
     let indices = new Uint8Array([
@@ -448,9 +455,10 @@ function initVertexBuffers(gl) {
     ]);
 
 
-    // Write the vertex property to buffers (coordinates, colors and normals)
+    // Write the vertex property to buffers (coordinates, textures and normals)
     if (!initArrayBuffer(gl, 'a_Position', vertices, 3, gl.FLOAT)) return -1;
     if (!initArrayBuffer(gl, 'a_Normal', normals, 3, gl.FLOAT)) return -1;
+    //if (!initArrayBuffer(gl, 'a_TexCoord', textures, 2, gl.FLOAT)) return -1; // TODO reenable
 
     // Write the indices to the buffer object
     let indexBuffer = gl.createBuffer();
