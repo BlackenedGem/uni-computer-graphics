@@ -60,8 +60,11 @@ for (let i = 0; i < NUM_CHAIRS; i++) {
 // HTML objects
 let webglCanvas;
 let doorAngleInput;
+
 let interfaceTopLeft;
 let interfaceTopRight;
+let interfaceBottomLeft;
+let interfaceBottomRight;
 
 let cbLights = [];
 let cbDaytime;
@@ -111,6 +114,8 @@ function htmlSetup() {
 
     interfaceTopLeft = document.getElementById("topleft");
     interfaceTopRight = document.getElementById("topright");
+    interfaceBottomLeft = document.getElementById("bottomleft");
+    interfaceBottomRight = document.getElementById("bottomright");
 
     cbLights.push(document.getElementById("cbLight1"));
     cbLights.push(document.getElementById("cbLight2"));
@@ -131,6 +136,8 @@ function htmlSetup() {
     webglCanvas.onmousedown = function() { isCanvasSelected = true; };
     interfaceTopLeft.onmousedown = function() { isCanvasSelected = false; };
     interfaceTopRight.onmousedown = function() { isCanvasSelected = false; };
+    interfaceBottomLeft.onmousedown = function() { isCanvasSelected = false; };
+    interfaceBottomRight.onmousedown = function() { isCanvasSelected = false; };
 
     // Handle user input
     // Keyboard/mouse
