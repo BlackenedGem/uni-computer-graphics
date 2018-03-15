@@ -11,13 +11,14 @@ uniform bool u_isLighting;
 // Lighting information
 uniform vec3 u_AmbientColor;// Global light colour
 uniform float u_Ambient; // Amount of ambient light
+uniform float u_DiffuseMult; // Nifty value we can use to make a surface appear brighter than it would be naturally
 
 const int numLights = 4;
 uniform vec3 u_LightSources[numLights]; // Info of individual lightsource. Either position or direction (x, y, z)
 uniform vec2 u_LightIntensity[numLights]; // Intensity of light. For spot light contains drop off factor
 uniform bool u_LightType[numLights]; // Whether light source is spot or directional
 uniform bool u_LightEnabled[numLights]; // Whether light source is enabled or not
-uniform vec3 u_LightColor[numLights];
+uniform vec3 u_LightColor[numLights]; // Colour of the light
 
 // Varyings
 varying vec3 v_Normal;
@@ -64,5 +65,5 @@ void main() {
     // Toggle if the light is an actual light source
     vec3 ambient = u_Ambient * u_Color.rgb;
 
-    gl_FragColor = vec4(diffuse + ambient, u_Color.a);
+    gl_FragColor = vec4(diffuse * u_DiffuseMult + ambient, u_Color.a);
 }

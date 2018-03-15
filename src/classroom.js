@@ -195,6 +195,7 @@ function main() {
     let u_LightIntensity = gl.getUniformLocation(gl.program, 'u_LightIntensity');
     let u_LightEnabled = gl.getUniformLocation(gl.program, 'u_LightEnabled');
     let u_LightType = gl.getUniformLocation(gl.program, 'u_LightType');
+    let u_DiffuseMult = gl.getUniformLocation(gl.program, 'u_DiffuseMult');
     let u_Ambient = gl.getUniformLocation(gl.program, 'u_Ambient');
     let u_Color = gl.getUniformLocation(gl.program, 'u_Color');
 
@@ -203,7 +204,8 @@ function main() {
 
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
         !u_ProjMatrix || !u_LightColor || !u_LightSources || !u_LightIntensity ||
-        !u_LightEnabled || !u_LightType || !u_Ambient || !u_isLighting || !u_Color) {
+        !u_LightEnabled || !u_LightType || !u_Ambient || !u_isLighting || !u_Color ||
+        !u_DiffuseMult) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
     }
@@ -218,14 +220,15 @@ function main() {
         u_LightEnabled: u_LightEnabled,
         u_Ambient: u_Ambient,
         u_LightColor: u_LightColor,
-        u_LightIntensity: u_LightIntensity
+        u_LightIntensity: u_LightIntensity,
+        u_DiffuseMult: u_DiffuseMult
     };
 
     camera.u_ViewMatrix = u_ViewMatrix;
     camera.u_ProjMatrix = u_ProjMatrix;
 
     // Set the spot light sources
-    initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightType, u_LightColor);
+    initLightSourceUniforms(gl, u_LightSources, u_LightType, u_LightColor);
     positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
     init = true;
@@ -370,7 +373,7 @@ function positionCamera(gl) {
 
 /* Initialisation functions */
 
-function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightType) {
+function initLightSourceUniforms(gl, u_LightSources, u_LightType) {
     // Initialises the lights with their locations, types, and intensities
     let lightSources = new Float32Array([   // Coordinates
         10.0, 15.0, 24.0,
@@ -382,8 +385,9 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightEnabled, u_LightType
     let lightType = [true, true, true, true];
 
     gl.uniform3fv(u_LightSources, lightSources);
-    gl.uniform1iv(u_LightEnabled, lightsEnabled);
+    gl.uniform1iv(drawInfo.u_LightEnabled, lightsEnabled);
     gl.uniform1iv(u_LightType, lightType);
+    gl.uniform1f(drawInfo.u_DiffuseMult, 1.0);
 
     updateLightIntensities(false);
 }
@@ -614,11 +618,11 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     // The whiteboard
     // Surprisingly uses the colour white
     // We make it a bit lighter using u_DiffuseMultiplier
-    drawInfo.gl.uniform1f(drawInfo.u_Ambient, 0.2);
+    drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.65);
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 1, 1, 1]);
     modelMatrix.scale(width, height, depth);
     drawBox(drawInfo);
-    drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
+    drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.0);
 
     modelMatrix = popMatrix();
 }
