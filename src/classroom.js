@@ -69,6 +69,7 @@ let cbRave;
 
 let cbDisableBounds;
 let sliderFOV;
+let labelFOV;
 
 // Variable that keeps track of the mouse/canvas status
 let isMouseDown = false;
@@ -120,6 +121,8 @@ function htmlSetup() {
     cbRave = document.getElementById("rave");
 
     cbDisableBounds = document.getElementById("cbCameraBounds");
+    sliderFOV = document.getElementById("FOV");
+    labelFOV = document.getElementById("FOVLabel");
 
     // Setup functions
     document.onmousedown = function() { isMouseDown = true };
