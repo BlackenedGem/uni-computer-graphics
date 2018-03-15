@@ -32,26 +32,28 @@ for (let i = 1; i <= 50; i++) {
 let nextFrame = 0;
 let frameTimeLabel;
 
-// Variables to keep track of dynamic objects/user selection
-let doorAngle = 0;
+// Variables to keep track of lighting/user lighting selection
 let lightsEnabled = [];
 let lightColors = [];
+let daytime = true;
 
+let raveMode = false;
+let raveColors = [];
+
+// Constants and variables to keep track of dynamic objects
 const NUM_CHAIRS = 24;
 const CHAIR_MAX_MOVEMENT = 2.2;
 const CHAIR_MIN_MOVEMENT = -2.4;
 const CHAIR_TIMEOUT = 600;
 const CHAIR_TIMEOUT_FADESTART = 120;
 
+let doorAngle = 0;
 let chairTimer = 0;
 let selectedChair = -1;
 let chairPositions = [];
 for (let i = 0; i < NUM_CHAIRS; i++) {
     chairPositions.push(0);
 }
-
-let raveMode = false;
-let raveColors = [];
 
 // HTML objects
 let webglCanvas;
@@ -60,6 +62,7 @@ let interfaceTopLeft;
 let interfaceTopRight;
 
 let cbLights = [];
+let cbDaytime;
 let cbRave;
 
 // Variable that keeps track of the mouse/canvas status
@@ -108,6 +111,7 @@ function htmlSetup() {
     cbLights.push(document.getElementById("cbLight3"));
     cbLights.push(document.getElementById("cbLight4"));
 
+    cbDaytime = document.getElementById("daytime");
     cbRave = document.getElementById("rave");
 
     // Setup functions
@@ -144,6 +148,12 @@ function htmlSetup() {
         cb.checked = true;
         cb.onclick = function() { changeLightingSelection() };
     }
+
+    // Daytime
+    cbDaytime.checked = true;
+    cbDaytime.onclick = function() {
+        daytime = cbDaytime.checked;
+    };
 
     // Disco mode
     cbRave.checked = false;
