@@ -246,6 +246,8 @@ function main() {
         n: n
     };
 
+    //initTextures(gl, n);
+
     camera.u_ViewMatrix = u_ViewMatrix;
     camera.u_ProjMatrix = u_ProjMatrix;
 
@@ -508,45 +510,6 @@ function initArrayBuffer (gl, attribute, data, num, type) {
     gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
     return true;
-}
-
-function initAxesVertexBuffers(gl) {
-    let verticesColors = new Float32Array([
-        // Vertex coordinates and color (for axes)
-        -50.0,  0.0,   0.0,  1.0,  1.0,  1.0,  // (x,y,z), (r,g,b)
-        50.0,  0.0,   0.0,  1.0,  1.0,  1.0,
-        0.0,  50.0,   0.0,  1.0,  1.0,  1.0,
-        0.0, -50.0,   0.0,  1.0,  1.0,  1.0,
-        0.0,   0.0, -50.0,  1.0,  1.0,  1.0,
-        0.0,   0.0,  50.0,  1.0,  1.0,  1.0
-    ]);
-    let n = 6;
-
-    // Create a buffer object
-    let vertexColorBuffer = gl.createBuffer();
-    if (!vertexColorBuffer) {
-        console.log('Failed to create the buffer object');
-        return false;
-    }
-
-    // Bind the buffer object to target
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
-
-    let FSIZE = verticesColors.BYTES_PER_ELEMENT;
-    //Get the storage location of a_Position, assign and enable buffer
-    let a_Position = gl.getAttribLocation(gl.program, 'a_Position');
-    if (a_Position < 0) {
-        console.log('Failed to get the storage location of a_Position');
-        return -1;
-    }
-    gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 6, 0);
-    gl.enableVertexAttribArray(a_Position);  // Enable the assignment of the buffer object
-
-    // Unbind the buffer object
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-    return n;
 }
 
 /* Drawing functions */
@@ -1156,6 +1119,7 @@ function initTextures(gl, n) {
     let texture = gl.createTexture();
 
     let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
+    console.log(u_Sampler);
     if (!u_Sampler) {
         console.log('Failed to Get the storage location of sampler uniform');
         return false;

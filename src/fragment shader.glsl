@@ -38,7 +38,7 @@ void main() {
 
     vec4 pixelColor;
     if (u_UseTextures) {
-        //pixelColor = texture2D(u_Sampler, v_TexCoord);
+        pixelColor = texture2D(u_Sampler, v_TexCoord);
     } else {
         pixelColor = u_Color;
     }
