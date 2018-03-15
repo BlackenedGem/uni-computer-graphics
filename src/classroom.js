@@ -613,17 +613,36 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
 
     let depth = 0.2;
 
-    modelMatrix.translate(x, y, z - depth / 2);
+    // Go to the centre of the whiteboard
+    modelMatrix.translate(x, y, z);
+    pushMatrix(modelMatrix);
+
+    // Side borders - dark colour
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.2, 0.2, 0.2, 1]);
+
+    // Left border
+    modelMatrix.translate(width / 2 + 0.05, 0, (depth / -2) - 0.05);
+    modelMatrix.scale(0.1, height, 0.3);
+    drawBox(drawInfo);
+
+    // Right border
+    modelMatrix = topMatrix();
+    modelMatrix.translate(width / -2 - 0.05, 0, (depth / -2) - 0.05);
+    modelMatrix.scale(0.1, height, 0.3);
+    drawBox(drawInfo);
 
     // The whiteboard
     // Surprisingly uses the colour white
     // We make it a bit lighter using u_DiffuseMultiplier
+    modelMatrix = topMatrix();
     drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.65);
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 1, 1, 1]);
+    modelMatrix.translate(0, 0, depth / -2);
     modelMatrix.scale(width, height, depth);
     drawBox(drawInfo);
     drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.0);
 
+    popMatrix();
     modelMatrix = popMatrix();
 }
 
