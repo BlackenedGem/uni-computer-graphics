@@ -452,12 +452,12 @@ function initVertexBuffers(gl) {
     ]);
 
     let textures = new Float32Array([
-        1.0, 1.0,   0.0, 1.0,   0.0, 0.0,   1.0, 0.0,
         0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
         0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
         0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
         0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
         0.0, 0.0,   0.0, 0.0,   0.0, 0.0,   0.0, 0.0,
+        0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
     ]);
 
     // Indices of the vertices
@@ -474,7 +474,7 @@ function initVertexBuffers(gl) {
     // Write the vertex property to buffers (coordinates, textures and normals)
     if (!initArrayBuffer(gl, 'a_Position', vertices, 3, gl.FLOAT)) return -1;
     if (!initArrayBuffer(gl, 'a_Normal', normals, 3, gl.FLOAT)) return -1;
-    //if (!initArrayBuffer(gl, 'a_TexCoord', textures, 2, gl.FLOAT)) return -1; // TODO reenable
+    if (!initArrayBuffer(gl, 'a_TexCoord', textures, 2, gl.FLOAT)) return -1;
 
     // Write the indices to the buffer object
     let indexBuffer = gl.createBuffer();
@@ -656,7 +656,7 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
         drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.5);
     }
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 1, 1, 1]);
-    modelMatrix.translate(0, 0, -20 + depth / -2);
+    modelMatrix.translate(0, 0, depth / -2);
     modelMatrix.scale(width, height, depth);
     drawBox(drawInfo);
     drawInfo.gl.uniform1i(drawInfo.u_UseTextures, false);
@@ -1122,6 +1122,10 @@ function loadShaders() {
 function initTextures(gl, n) {
     let texture = gl.createTexture();
 
+    if (!texture) {
+        console.log("Could not create texture");
+    }
+
     let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
     if (!u_Sampler) {
         console.log('Failed to Get the storage location of sampler uniform');
@@ -1130,19 +1134,24 @@ function initTextures(gl, n) {
 
     let image = new Image();
     image.onload = function() {
-        loadTexture(gl, n, texture, u_Sampler, image);
+        onLoadTexture(gl, n, texture, u_Sampler, image);
     };
     image.src = "whiteboard.png";
 
     return true;
 }
 
-function loadTexture(gl, n, texture, u_Sampler, image) {
+function loadTexture(src, textureBinder, u_Sampler) {
+
+}
+
+function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture) {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
 
-    gl.activeTexture(gl.TEXTURE0);
+    gl.activeTexture(bindTexture);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
