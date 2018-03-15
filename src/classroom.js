@@ -188,9 +188,10 @@ function htmlSetup() {
     }
 
     // Camera options
-    cbDisableBounds.checked = true;
+    cbDisableBounds.checked = false;
     cbDisableBounds.onclick = function() {
         camera.disableBounds = cbDisableBounds.checked;
+
     };
 
     sliderFOV.value = camera.fov;
@@ -576,8 +577,6 @@ function draw() {
     }
 
     let gl = drawInfo.gl;
-    let u_ModelMatrix = drawInfo.u_ModelMatrix;
-    let u_Color = drawInfo.u_Color;
     let u_isLighting = drawInfo.u_isLighting;
 
     // Start timer
@@ -595,28 +594,18 @@ function draw() {
     // Clear color and depth buffer
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    // Process input and position camera
     keyInputSmooth();
     positionCamera(gl); // Position camera using the global camera object
-    gl.uniform1i(u_isLighting, false); // Will not apply lighting
 
-    // Calculate the view matrix and the projection matrix
+    // Reset model matrix and set some uniforms
     modelMatrix.setTranslate(0, 0, 0);  // No Translation
-    // Pass the model matrix to the uniform variable
-    gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-
     gl.uniform1i(u_isLighting, true); // Will apply lighting
-    drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
+    gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
     gl.uniform1iv(drawInfo.u_LightEnabled, lightsEnabled); // Which lights to turn on
 
     // Update lighting colours
     updateLightColour();
-
-    // Draw walls and floor
-    pushMatrix(modelMatrix);
-    modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
-    drawCeiling(drawInfo, 40, 40, 18);
-    drawClassroomSides(drawInfo, 40, 40, 18);
-    modelMatrix = popMatrix();
 
     // Draw 3 rows of chairs/tables
     for (let i = 0; i < 3; i++) {
@@ -628,6 +617,13 @@ function draw() {
     drawFrontDesk(drawInfo, 10.5, 0, 26.5);
     drawWhiteboard(drawInfo, -5, 9, 33, 18, 10);
     drawDoor(drawInfo, -19.5, 0, 33);
+
+    // Draw walls and floor
+    pushMatrix(modelMatrix);
+    modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
+    drawCeiling(drawInfo, 40, 40, 18);
+    drawClassroomSides(drawInfo, 40, 40, 18);
+    modelMatrix = popMatrix();
 
     // End timer and update
     updateFPS(performance.now() - startTime);
