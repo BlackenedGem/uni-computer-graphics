@@ -684,7 +684,11 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     // Surprisingly uses the colour white
     // We make it a bit lighter using u_DiffuseMultiplier
     modelMatrix = topMatrix();
-    drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.65);
+    if (daytime) {
+        drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.4);
+    } else {
+        drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.5);
+    }
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [1, 1, 1, 1]);
     modelMatrix.translate(0, 0, depth / -2);
     modelMatrix.scale(width, height, depth);
