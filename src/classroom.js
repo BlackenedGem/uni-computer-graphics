@@ -2,7 +2,7 @@
 // Track initialisation state
 let initMain = false;
 let initCounter = 0;
-const INIT_AMOUNT = 1;
+const INIT_AMOUNT = 2;
 
 // Vertex/fragment shader programs
 let VSHADER_SOURCE;
@@ -246,7 +246,7 @@ function main() {
         n: n
     };
 
-    //initTextures(gl, n);
+    initTextures(gl, n);
 
     camera.u_ViewMatrix = u_ViewMatrix;
     camera.u_ProjMatrix = u_ProjMatrix;
@@ -1119,7 +1119,6 @@ function initTextures(gl, n) {
     let texture = gl.createTexture();
 
     let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
-    console.log(u_Sampler);
     if (!u_Sampler) {
         console.log('Failed to Get the storage location of sampler uniform');
         return false;
@@ -1140,6 +1139,8 @@ function loadTexture(gl, n, texture, u_Sampler, image) {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
     gl.uniform1i(u_Sampler, 0);
