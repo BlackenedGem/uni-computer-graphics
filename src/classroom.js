@@ -58,6 +58,7 @@ for (let i = 0; i < NUM_CHAIRS; i++) {
 }
 
 // HTML objects
+// Don't necessarily need to be global, but some do and some don't, so it's better to make them all
 let webglCanvas;
 let doorAngleInput;
 
@@ -194,6 +195,7 @@ function htmlSetup() {
 
     sliderFOV.value = camera.fov;
     sliderFOV.oninput = function() {
+        labelFOV.textContent = "FOV - " + sliderFOV.value;
         camera.fov = sliderFOV.value;
     };
 
@@ -351,6 +353,28 @@ function keyInputSmooth() {
     if (keyboard[key.DOWN]) { moveCameraUpwards(amount); }
     if (keyboard[key.RIGHT]) { moveCameraSideways(-amount); }
     if (keyboard[key.LEFT]) { moveCameraSideways(amount); }
+
+    // Make sure camera is within bounds if enabled
+    if (!camera.disableBounds) {
+        if (camera.x < -18.5) {
+            camera.x = -18.5;
+        }
+        if (camera.x > 18.5) {
+            camera.x = 18.5;
+        }
+        if (camera.z < -4.5) {
+            camera.z = -4.5;
+        }
+        if (camera.z > 32.5) {
+            camera.z = 32.5;
+        }
+        if (camera.y < 0.5) {
+            camera.y = 0.5;
+        }
+        if (camera.y > 16.5) {
+            camera.y = 16.5;
+        }
+    }
 
     // Chair movement
     if (keyboard[key.I] && selectedChair !== -1) {
