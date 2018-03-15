@@ -733,9 +733,6 @@ function drawDoor(drawInfo, x, y, z) {
     let width = 5;
     let height = 12;
 
-    // Door colour - brown
-    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.396, 0.263, 0.129, 1]);
-
     // Rotation/translation
     pushMatrix(modelMatrix);
     modelMatrix.translate(x, y, z);
@@ -743,14 +740,17 @@ function drawDoor(drawInfo, x, y, z) {
 
     // Door piece
     pushMatrix(modelMatrix);
+    enableTextures(4);
     modelMatrix.translate(depth / -2, height / 2, width / -2);
+    modelMatrix.rotate(180, 0, 0, 1);
     modelMatrix.scale(depth, height, width); // Scale
     drawBox(drawInfo);
+    disableTextures();
 
     // Handle
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.573, 0.502, 0.137, 1]);
     modelMatrix = popMatrix();
-    modelMatrix.translate(depth / -2, height / 2, - (width - 1));
+    modelMatrix.translate(depth / -2, 3.5, - (width - 1));
     modelMatrix.scale(depth + 0.7, 0.4, 0.4); // Scale
     drawBox(drawInfo);
 
@@ -1221,6 +1221,7 @@ function initTextures(gl) {
     loadTexture("carpet.jpg", gl.TEXTURE1, drawInfo.u_Sampler);
     loadTexture("hallway.jpg", gl.TEXTURE2, drawInfo.u_Sampler);
     loadTexture("wood.jpg", gl.TEXTURE3, drawInfo.u_Sampler);
+    loadTexture("door.jpg", gl.TEXTURE4, drawInfo.u_Sampler);
 
     return true;
 }
