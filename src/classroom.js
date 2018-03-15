@@ -212,7 +212,8 @@ function main() {
     let u_DiffuseMult = gl.getUniformLocation(gl.program, 'u_DiffuseMult');
     let u_Ambient = gl.getUniformLocation(gl.program, 'u_Ambient');
     let u_Color = gl.getUniformLocation(gl.program, 'u_Color');
-    let u_TextureToUse = gl.getUniformLocation(gl.program, 'u_TextureToUse');
+    let u_UseTextures = gl.getUniformLocation(gl.program, 'u_UseTextures');
+    let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
 
     // Trigger using lighting or not
     let u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
@@ -220,7 +221,7 @@ function main() {
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
         !u_ProjMatrix || !u_LightColor || !u_LightSources || !u_LightIntensity ||
         !u_LightEnabled || !u_LightType || !u_Ambient || !u_isLighting || !u_Color ||
-        !u_DiffuseMult || !u_TextureToUse) {
+        !u_DiffuseMult || !u_UseTextures || !u_Sampler) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
     }
@@ -244,7 +245,8 @@ function main() {
         u_LightColor: u_LightColor,
         u_LightIntensity: u_LightIntensity,
         u_DiffuseMult: u_DiffuseMult,
-        u_TextureToUse: u_TextureToUse,
+        u_UseTextures: u_UseTextures,
+        u_Sampler: u_Sampler,
         n: n
     };
 
@@ -649,8 +651,8 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     // Surprisingly uses the colour white
     // We make it a bit lighter using u_DiffuseMultiplier
     modelMatrix = topMatrix();
-    drawInfo.gl.uniform1i(drawInfo.u_TextureToUse, 0);
-    drawInfo.gl.activeTexture(drawInfo.gl.TEXTURE1);
+    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, true);
+    drawInfo.gl.uniform1i(drawInfo.u_Sampler, 0);
     if (daytime) {
         drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.4);
     } else {
@@ -660,7 +662,7 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     modelMatrix.translate(0, 0, depth / -2);
     modelMatrix.scale(width, height, depth);
     drawBox(drawInfo);
-    drawInfo.gl.uniform1i(drawInfo.u_TextureToUse, -1);
+    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, false);
     drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.0);
 
     popMatrix();
@@ -1121,17 +1123,8 @@ function loadShaders() {
 }
 
 function initTextures(gl) {
-    // Set texture to use to be -1
-    gl.uniform1i(drawInfo.u_TextureToUse, -1);
-
-    let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
-    if (!u_Sampler) {
-        console.log('Failed to Get the storage location of sampler uniform');
-        return false;
-    }
-
-    loadTexture("whiteboard.png", gl.TEXTURE0, u_Sampler);
-    loadTexture("testing texture.png", gl.TEXTURE1, u_Sampler);
+    loadTexture("whiteboard.png", gl.TEXTURE0, drawInfo.u_Sampler);
+    loadTexture("testing texture.png", gl.TEXTURE1, drawInfo.u_Sampler);
 
     return true;
 }
@@ -1161,8 +1154,6 @@ function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-
-    gl.uniform1i(u_Sampler, 0);
 
     initCounter++;
 }
