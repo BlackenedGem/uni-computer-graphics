@@ -394,12 +394,12 @@ function initLightSourceUniforms(gl, u_LightSources, u_LightType) {
         10.0, 15.0, 4.0,
         -10.0, 15.0, 4.0,
 
-        // Directional light
-        2, 1, -1
+        // Outside light
+        50, 20, 0
     ];
     lightSources = new Float32Array(lightSources);
 
-    let lightType = [true, true, true, true, false];
+    let lightType = [true, true, true, true, true];
 
     gl.uniform3fv(u_LightSources, lightSources);
     gl.uniform1iv(drawInfo.u_LightEnabled, lightsEnabled);
@@ -1100,7 +1100,7 @@ function updateLightIntensities(raveMode = false) {
         intensity, dropoff,
 
         // Directional light
-        0.5, 0
+        3, 30
     ]);
 
     drawInfo.gl.uniform2fv(drawInfo.u_LightIntensity, lightIntensities);
