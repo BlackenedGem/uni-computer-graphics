@@ -1,11 +1,9 @@
 // region Global variables
 let init = false;
 
-// Vertex shader program
-let VSHADER_SOURCE = loadLocalFile('vertex shader.glsl');
-
-// Fragment shader program
-let FSHADER_SOURCE = loadLocalFile('fragment shader.glsl');
+// Vertex/fragment shader programs
+let VSHADER_SOURCE;
+let FSHADER_SOURCE;
 
 // Matrices
 let modelMatrix = new Matrix4(); // The model matrix
@@ -175,6 +173,7 @@ function htmlSetup() {
 
 function main() {
     htmlSetup();
+    loadFiles();
 
     // Get the rendering context for WebGL
     let gl = getWebGLContext(webglCanvas);
@@ -1134,4 +1133,11 @@ function updateLightColour() {
 
     // Put into uniform
     drawInfo.gl.uniform3fv(drawInfo.u_LightColor, lightColors);
+}
+
+/* Load files */
+
+function loadFiles() {
+    VSHADER_SOURCE = loadLocalFile('vertex shader.glsl');
+    FSHADER_SOURCE = loadLocalFile('fragment shader.glsl');
 }
