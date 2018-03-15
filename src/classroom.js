@@ -187,7 +187,6 @@ function main() {
     }
 
     // Set clear color and enable hidden surface removal
-    gl.clearColor(0.788, 0.867, 1, 1.0);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -554,6 +553,11 @@ function draw() {
     let startTime = performance.now();
 
     // Clear color and depth buffer
+    if (daytime) {
+        gl.clearColor(0.722, 0.914, 0.988, 1.0);
+    } else {
+        gl.clearColor(0, 0, 0, 1.0);
+    }
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     keyInputSmooth();
@@ -737,7 +741,7 @@ function drawFrontDesk(drawInfo, x, y, z) {
 
 function drawCeiling(drawInfo, width, depth, height) {
     // Set the colour to Blue
-    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.737, 0.941, 1, 1]);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.859, 0.961, 1, 1]);
 
     // Save the matrix in the middle of the floor
     pushMatrix(modelMatrix);
@@ -798,7 +802,7 @@ function drawClassroomSides(drawInfo, width, depth, height) {
     drawBox(drawInfo);
 
     // Set the colour to Blue
-    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.737, 0.941, 1, 1]);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.859, 0.961, 1, 1]);
 
     // Model the back wall
     modelMatrix = topMatrix();
@@ -902,7 +906,7 @@ function drawWindow(drawInfo, width, height) {
 
     // The glass pane
     // Blueish with alpha value
-    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.788, 0.867, 1, 0.1]);
+    drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.788, 0.867, 1, 0.03]);
     modelMatrix = topMatrix();
     modelMatrix.scale(0.4, height, width);
     drawBox(drawInfo);
