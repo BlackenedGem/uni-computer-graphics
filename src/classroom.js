@@ -21,7 +21,8 @@ let camera = {
     z: 0,
     fov: 90,
     azimuth: 0,
-    altitude: 0
+    altitude: 0,
+    disableBounds: false
 };
 
 // Variables to track frame time/fps
@@ -65,6 +66,9 @@ let interfaceTopRight;
 let cbLights = [];
 let cbDaytime;
 let cbRave;
+
+let cbDisableBounds;
+let sliderFOV;
 
 // Variable that keeps track of the mouse/canvas status
 let isMouseDown = false;
@@ -114,6 +118,8 @@ function htmlSetup() {
 
     cbDaytime = document.getElementById("daytime");
     cbRave = document.getElementById("rave");
+
+    cbDisableBounds = document.getElementById("cbCameraBounds");
 
     // Setup functions
     document.onmousedown = function() { isMouseDown = true };
@@ -169,6 +175,17 @@ function htmlSetup() {
     for (let i = 0; i < cbLights.length; i++) {
         raveColors.push(i * 500);
     }
+
+    // Camera options
+    cbDisableBounds.checked = true;
+    cbDisableBounds.onclick = function() {
+        camera.disableBounds = cbDisableBounds.checked;
+    };
+
+    sliderFOV.value = camera.fov;
+    sliderFOV.oninput = function() {
+        camera.fov = sliderFOV.value;
+    };
 
     // Resized canvas
     window.addEventListener('resize', resize, false);
