@@ -212,7 +212,7 @@ function main() {
     let u_DiffuseMult = gl.getUniformLocation(gl.program, 'u_DiffuseMult');
     let u_Ambient = gl.getUniformLocation(gl.program, 'u_Ambient');
     let u_Color = gl.getUniformLocation(gl.program, 'u_Color');
-    let u_UseTextures = gl.getUniformLocation(gl.program, 'u_UseTextures');
+    let u_TextureToUse = gl.getUniformLocation(gl.program, 'u_TextureToUse');
 
     // Trigger using lighting or not
     let u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
@@ -220,7 +220,7 @@ function main() {
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
         !u_ProjMatrix || !u_LightColor || !u_LightSources || !u_LightIntensity ||
         !u_LightEnabled || !u_LightType || !u_Ambient || !u_isLighting || !u_Color ||
-        !u_DiffuseMult || !u_UseTextures) {
+        !u_DiffuseMult || !u_TextureToUse) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
     }
@@ -244,7 +244,7 @@ function main() {
         u_LightColor: u_LightColor,
         u_LightIntensity: u_LightIntensity,
         u_DiffuseMult: u_DiffuseMult,
-        u_UseTextures: u_UseTextures,
+        u_TextureToUse: u_TextureToUse,
         n: n
     };
 
@@ -649,7 +649,8 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     // Surprisingly uses the colour white
     // We make it a bit lighter using u_DiffuseMultiplier
     modelMatrix = topMatrix();
-    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, true);
+    drawInfo.gl.uniform1i(drawInfo.u_TextureToUse, 0);
+    drawInfo.gl.activeTexture(drawInfo.gl.TEXTURE1);
     if (daytime) {
         drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.4);
     } else {
@@ -659,7 +660,7 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     modelMatrix.translate(0, 0, depth / -2);
     modelMatrix.scale(width, height, depth);
     drawBox(drawInfo);
-    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, false);
+    drawInfo.gl.uniform1i(drawInfo.u_TextureToUse, -1);
     drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.0);
 
     popMatrix();
@@ -1120,18 +1121,22 @@ function loadShaders() {
 }
 
 function initTextures(gl) {
+    // Set texture to use to be -1
+    gl.uniform1i(drawInfo.u_TextureToUse, -1);
+
     let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
     if (!u_Sampler) {
         console.log('Failed to Get the storage location of sampler uniform');
         return false;
     }
 
-    loadTexture("whiteboard.png", gl.TEXTURE0, u_Sampler, false);
+    loadTexture("whiteboard.png", gl.TEXTURE0, u_Sampler);
+    loadTexture("testing texture.png", gl.TEXTURE1, u_Sampler);
 
     return true;
 }
 
-function loadTexture(src, textureBinder, u_Sampler, repeat) {
+function loadTexture(src, textureBinder, u_Sampler) {
     let texture = drawInfo.gl.createTexture();
 
     if (!texture) {
@@ -1140,26 +1145,21 @@ function loadTexture(src, textureBinder, u_Sampler, repeat) {
 
     let image = new Image();
     image.onload = function() {
-        onLoadTexture(drawInfo.gl, drawInfo.n, texture, u_Sampler, image, textureBinder, repeat);
+        onLoadTexture(drawInfo.gl, drawInfo.n, texture, u_Sampler, image, textureBinder);
     };
     image.src = src;
 }
 
-function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture, repeat = true) {
+function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture) {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
 
     gl.activeTexture(bindTexture);
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
-    if (repeat) {
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    } else {
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
     gl.uniform1i(u_Sampler, 0);

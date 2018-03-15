@@ -10,7 +10,7 @@ uniform bool u_isLighting;
 
 // Texture information
 uniform sampler2D u_Sampler;
-uniform bool u_UseTextures;
+uniform int u_TextureToUse;
 
 // Lighting information
 uniform vec3 u_AmbientColor;// Global light colour
@@ -37,7 +37,7 @@ void main() {
     }
 
     vec4 pixelColor;
-    if (u_UseTextures) {
+    if (u_TextureToUse >= 0) {
         pixelColor = texture2D(u_Sampler, v_TexCoord);
     } else {
         pixelColor = u_Color;
