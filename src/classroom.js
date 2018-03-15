@@ -1,5 +1,8 @@
 // region Global variables
-let init = false;
+// Track initialisation state
+let initMain = false;
+let initCounter = 0;
+const INIT_AMOUNT = 1;
 
 // Vertex/fragment shader programs
 let VSHADER_SOURCE;
@@ -173,7 +176,7 @@ function htmlSetup() {
 
 function main() {
     htmlSetup();
-    loadFiles();
+    loadShaders();
 
     // Get the rendering context for WebGL
     let gl = getWebGLContext(webglCanvas);
@@ -242,13 +245,14 @@ function main() {
     initLightSourceUniforms(gl, u_LightSources, u_LightType, u_LightColor);
     positionCamera(gl, u_ViewMatrix, u_ProjMatrix);
 
-    init = true;
+    initMain = true;
+    initCounter++;
     resize();
     draw();
 }
 
 function resize() {
-    if (!init) {
+    if (!initMain) {
         return;
     }
 
@@ -540,6 +544,11 @@ function initAxesVertexBuffers(gl) {
 /* Drawing functions */
 
 function draw() {
+    if (initCounter < INIT_AMOUNT) {
+        window.requestAnimationFrame(draw);
+        return;
+    }
+
     let gl = drawInfo.gl;
     let u_ModelMatrix = drawInfo.u_ModelMatrix;
     let u_Color = drawInfo.u_Color;
@@ -1145,7 +1154,20 @@ function updateLightColour() {
 
 /* Load files */
 
-function loadFiles() {
+function loadShaders() {
     VSHADER_SOURCE = loadLocalFile('vertex shader.glsl');
     FSHADER_SOURCE = loadLocalFile('fragment shader.glsl');
+}
+
+function loadTexture(gl, n, texture, u_Sampler, image) {
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+    gl.uniform1i(u_Sampler, 0);
+
+    initCounter++;
 }
