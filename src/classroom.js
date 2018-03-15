@@ -651,8 +651,7 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     // Surprisingly uses the colour white
     // We make it a bit lighter using u_DiffuseMultiplier
     modelMatrix = topMatrix();
-    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, true);
-    drawInfo.gl.uniform1i(drawInfo.u_Sampler, 0);
+    enableTextures(1);
     if (daytime) {
         drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.4);
     } else {
@@ -662,7 +661,7 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     modelMatrix.translate(0, 0, depth / -2);
     modelMatrix.scale(width, height, depth);
     drawBox(drawInfo);
-    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, false);
+    disableTextures();
     drawInfo.gl.uniform1f(drawInfo.u_DiffuseMult, 1.0);
 
     popMatrix();
@@ -769,13 +768,12 @@ function drawClassroomSides(drawInfo, width, depth, height) {
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.749, 0.341, 0.341, 1]);
 
     // Model the floor
-    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, true);
-    drawInfo.gl.uniform1i(drawInfo.u_Sampler, 1);
+    enableTextures(1);
     modelMatrix.translate(0, -0.5, 0);
     modelMatrix.rotate(90, 1, 0, 0);
     modelMatrix.scale(width, depth, 1); // Scale
     drawBox(drawInfo);
-    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, false);
+    disableTextures();
 
     // Set the colour to Blue
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.859, 0.961, 1, 1]);
@@ -802,13 +800,12 @@ function drawClassroomSides(drawInfo, width, depth, height) {
 
     // Draw the 'hallway' for when the door is opened
     modelMatrix = topMatrix();
-    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, true);
-    drawInfo.gl.uniform1i(drawInfo.u_Sampler, 2);
+    enableTextures(2);
     modelMatrix.translate((width / -2) - 0.5, 6, (depth / 2) - 3.5);
     modelMatrix.rotate(270, 0, 1, 0);
     modelMatrix.scale(5, 12, 1);
     drawBox(drawInfo);
-    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, false);
+    disableTextures();
 
     // Draw the wall with windows
     modelMatrix = topMatrix();
@@ -913,7 +910,7 @@ function drawRow(drawInfo, x, y, z, chairIDOffset) {
     modelMatrix = popMatrix();
 }
 
-function drawTable(drawInfo, x, y, z, width, colour) {
+function drawTable(drawInfo, x, y, z, width, colour, useTexture = false) {
     // Default values
     if (!colour) {
         colour = [0.824, 0.706, 0.549, 1]; // Browny colour
@@ -928,10 +925,17 @@ function drawTable(drawInfo, x, y, z, width, colour) {
     modelMatrix.translate(x, y + 3.25, z);  // Translation
 
     // Model the table top
+    // Use a texture if variable set
+    if (useTexture) {
+        enableTextures(3);
+    }
     pushMatrix(modelMatrix);
     modelMatrix.scale(width, 0.3, 3.0); // Scale
     drawBox(drawInfo);
     modelMatrix = popMatrix();
+    if (useTexture) {
+        enableTextures(3);
+    }
 
     // Set the leg colour to dark grey
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.3, 0.3, 0.3, 1]);
@@ -1128,6 +1132,17 @@ function updateLightColour() {
     drawInfo.gl.uniform3fv(drawInfo.u_LightColor, lightColors);
 }
 
+/* Render helper functions */
+
+function enableTextures(textureID) {
+    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, true);
+    drawInfo.gl.uniform1i(drawInfo.u_Sampler, textureID);
+}
+
+function disableTextures() {
+    drawInfo.gl.uniform1i(drawInfo.u_UseTextures, false);
+}
+
 /* Load files */
 
 function loadShaders() {
@@ -1139,6 +1154,7 @@ function initTextures(gl) {
     loadTexture("whiteboard.png", gl.TEXTURE0, drawInfo.u_Sampler);
     loadTexture("carpet.jpg", gl.TEXTURE1, drawInfo.u_Sampler);
     loadTexture("hallway.jpg", gl.TEXTURE2, drawInfo.u_Sampler);
+    loadTexture("wood.jpg", gl.TEXTURE2, drawInfo.u_Sampler);
 
     return true;
 }
@@ -1169,5 +1185,6 @@ function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
+    // Increment initialisation counter
     initCounter++;
 }
