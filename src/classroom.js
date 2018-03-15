@@ -71,6 +71,10 @@ let cbLights = [];
 let cbDaytime;
 let cbRave;
 
+let btnChairsIn;
+let btnChairsOut;
+let btnChairsReset;
+
 let cbDisableBounds;
 let sliderFOV;
 let labelFOV;
@@ -125,6 +129,10 @@ function htmlSetup() {
 
     cbDaytime = document.getElementById("daytime");
     cbRave = document.getElementById("rave");
+
+    btnChairsIn = document.getElementById("tuckChairs");
+    btnChairsOut = document.getElementById("pullChairs");
+    btnChairsReset = document.getElementById("resetChairs");
 
     cbDisableBounds = document.getElementById("cbCameraBounds");
     sliderFOV = document.getElementById("FOV");
@@ -186,6 +194,11 @@ function htmlSetup() {
     for (let i = 0; i < cbLights.length; i++) {
         raveColors.push(i * 500);
     }
+
+    // Chair buttons
+    btnChairsIn.onclick = function() { setAllChairs(CHAIR_MAX_MOVEMENT); };
+    btnChairsOut.onclick = function() { setAllChairs(CHAIR_MIN_MOVEMENT); };
+    btnChairsReset.onclick = function() { setAllChairs(0); };
 
     // Camera options
     cbDisableBounds.checked = false;
@@ -1103,6 +1116,12 @@ function topMatrix() {
 }
 
 /* Update functions */
+
+function setAllChairs(value) {
+    for (let i = 0; i < chairPositions.length; i++) {
+        chairPositions[i] = value;
+    }
+}
 
 function updateFPS(renderTime) {
     frameTimes[nextFrame] = renderTime;
