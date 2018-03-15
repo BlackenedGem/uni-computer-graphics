@@ -631,6 +631,18 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     modelMatrix.scale(0.1, height, 0.3);
     drawBox(drawInfo);
 
+    // Top border
+    modelMatrix = topMatrix();
+    modelMatrix.translate(0, height / 2 + 0.05, (depth / -2) - 0.05);
+    modelMatrix.scale(width + 0.2, 0.1, 0.3);
+    drawBox(drawInfo);
+
+    // Bottom border sill
+    modelMatrix = topMatrix();
+    modelMatrix.translate(0, height / -2 - 0.05, (depth / -2) - 0.3);
+    modelMatrix.scale(width + 0.2, 0.1, 0.8);
+    drawBox(drawInfo);
+
     // The whiteboard
     // Surprisingly uses the colour white
     // We make it a bit lighter using u_DiffuseMultiplier
