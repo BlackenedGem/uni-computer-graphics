@@ -1024,10 +1024,12 @@ function drawChair(drawInfo, x, y, z, colour, chairID = -2) {
 
     // Default colour value
     if (!colour) {
-        colour = [0.137, 0.576, 0.278, 1]; // Green colour
+        enableTextures(5);
+    } else {
+        // Set the seat colour
+        drawInfo.gl.uniform4fv(drawInfo.u_Color, colour);
     }
-    // Set the seat colour
-    drawInfo.gl.uniform4fv(drawInfo.u_Color, colour);
+
 
     // Increase ambient lighting if chair is selected
     if (chairID === selectedChair) {
@@ -1059,6 +1061,10 @@ function drawChair(drawInfo, x, y, z, colour, chairID = -2) {
     modelMatrix.scale(2.0, 2.5, 0.15); // Scale
     drawBox(drawInfo);
     modelMatrix = popMatrix();
+
+    if (!colour) {
+        disableTextures();
+    }
 
     // Set the leg colour to dark grey
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.5, 0.5, 0.5, 1]);
@@ -1225,6 +1231,7 @@ function initTextures(gl) {
     loadTexture("hallway.jpg", gl.TEXTURE2, drawInfo.u_Sampler);
     loadTexture("wood.jpg", gl.TEXTURE3, drawInfo.u_Sampler);
     loadTexture("door.jpg", gl.TEXTURE4, drawInfo.u_Sampler);
+    loadTexture("chair.jpg", gl.TEXTURE5, drawInfo.u_Sampler);
 
     return true;
 }
