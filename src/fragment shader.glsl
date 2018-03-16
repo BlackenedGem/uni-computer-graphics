@@ -26,9 +26,9 @@ uniform bool u_LightEnabled[numLights]; // Whether light source is enabled or no
 uniform vec3 u_LightColor[numLights]; // Colour of the light
 
 // Fog
-varying float v_Distance;
+uniform vec3 u_Eye;
 uniform vec3 u_FogColor;
-const vec2 fogDist = vec2(80, 100);
+const vec2 fogDist = vec2(80, 150);
 
 // Varyings
 varying vec3 v_Normal;
@@ -51,7 +51,8 @@ void main() {
     if (!u_isLighting) {
         // Fog (from book)
         // We only do fog on ambient lighting, because that's only the grass
-        float fogFactor = clamp((fogDist.y - v_Distance) / (fogDist.y - fogDist.x), 0.0, 1.0);
+        float Distance = distance(v_Position, u_Eye);
+        float fogFactor = clamp((fogDist.y - Distance) / (fogDist.y - fogDist.x), 0.0, 1.0);
 
         vec3 mixedColor = u_Ambient * pixelColor.rgb;
         mixedColor = mix(u_FogColor, mixedColor, fogFactor);
