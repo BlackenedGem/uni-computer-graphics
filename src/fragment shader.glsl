@@ -27,7 +27,7 @@ uniform vec3 u_LightColor[numLights]; // Colour of the light
 
 // Fog
 varying float v_Distance;
-const vec3 fogColor = vec3(0.5, 0.5, 0.5);
+uniform vec3 u_FogColor;
 const vec2 fogDist = vec2(80, 100);
 
 // Varyings

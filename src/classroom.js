@@ -258,6 +258,7 @@ function main() {
     let u_UseTextures = gl.getUniformLocation(gl.program, 'u_UseTextures');
     let u_TextureRepeat = gl.getUniformLocation(gl.program, 'u_TextureRepeat');
     let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
+    let u_FogColor = gl.getUniformLocation(gl.program, 'u_FogColor');
 
     // Trigger using lighting or not
     let u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
@@ -265,7 +266,7 @@ function main() {
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
         !u_ProjMatrix || !u_LightColor || !u_LightSources || !u_LightIntensity ||
         !u_LightEnabled || !u_LightType || !u_Ambient || !u_isLighting || !u_Color ||
-        !u_DiffuseMult || !u_UseTextures || !u_Sampler) {
+        !u_DiffuseMult || !u_UseTextures || !u_Sampler || !u_TextureRepeat) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
     }
@@ -292,6 +293,7 @@ function main() {
         u_UseTextures: u_UseTextures,
         u_TextureRepeat: u_TextureRepeat,
         u_Sampler: u_Sampler,
+        u_FogColor: u_FogColor,
         n: n
     };
 
@@ -600,9 +602,11 @@ function draw() {
     // Change clear colour and enable/disable directional lighting depending on whether it's daytime or not
     if (daytime) {
         gl.clearColor(0.722, 0.914, 0.988, 1.0);
+        gl.uniform3fv(drawInfo.u_FogColor, [0.722, 0.914, 0.988]);
         lightsEnabled[lightsEnabled.length - 1] = true;
     } else {
         gl.clearColor(0, 0, 0, 1.0);
+        gl.uniform3fv(drawInfo.u_FogColor, [0, 0, 0]);
         lightsEnabled[lightsEnabled.length - 1] = false;
     }
 
