@@ -633,6 +633,9 @@ function draw() {
     drawWhiteboard(drawInfo, -5, 9, 33, 18, 10);
     drawDoor(drawInfo, -19.5, 0, 33);
 
+    // Draw outside
+    drawOutside(drawInfo);
+
     // Draw walls and floor
     pushMatrix(modelMatrix);
     modelMatrix.translate(0, 0, 14);  // Translation to the 'middle' of the room
@@ -645,6 +648,16 @@ function draw() {
 
     // Make it so that draw is called again when needed
     window.requestAnimationFrame(draw);
+}
+
+function drawOutside(drawInfo) {
+    pushMatrix(modelMatrix);
+
+    modelMatrix.translate(50, -0.5, 14);
+    modelMatrix.scale(58, 1, 100);
+    drawBox(drawInfo);
+
+    modelMatrix = popMatrix();
 }
 
 function drawWhiteboard(drawInfo, x, y, z, width, height) {
@@ -1232,6 +1245,7 @@ function initTextures(gl) {
     loadTexture("wood.jpg", gl.TEXTURE3, drawInfo.u_Sampler);
     loadTexture("door.jpg", gl.TEXTURE4, drawInfo.u_Sampler);
     loadTexture("chair.jpg", gl.TEXTURE5, drawInfo.u_Sampler);
+    loadTexture("grass.png", gl.TEXTURE6, drawInfo.u_Sampler, true);
 
     return true;
 }
