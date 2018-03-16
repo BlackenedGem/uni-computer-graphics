@@ -259,6 +259,7 @@ function main() {
     let u_TextureRepeat = gl.getUniformLocation(gl.program, 'u_TextureRepeat');
     let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
     let u_FogColor = gl.getUniformLocation(gl.program, 'u_FogColor');
+    let u_Eye = gl.getUniformLocation(gl.program, 'u_Eye');
 
     // Trigger using lighting or not
     let u_isLighting = gl.getUniformLocation(gl.program, 'u_isLighting');
@@ -266,7 +267,8 @@ function main() {
     if (!u_ModelMatrix || !u_ViewMatrix || !u_NormalMatrix ||
         !u_ProjMatrix || !u_LightColor || !u_LightSources || !u_LightIntensity ||
         !u_LightEnabled || !u_LightType || !u_Ambient || !u_isLighting || !u_Color ||
-        !u_DiffuseMult || !u_UseTextures || !u_Sampler || !u_TextureRepeat) {
+        !u_DiffuseMult || !u_UseTextures || !u_Sampler || !u_TextureRepeat ||
+        !u_FogColor) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
     }

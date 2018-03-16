@@ -36,6 +36,7 @@ varying vec3 v_Position;
 varying vec2 v_TexCoord;
 
 void main() {
+    // Fragment colour (texture or colour)
     vec4 pixelColor;
     if (u_UseTextures) {
         pixelColor = texture2D(u_Sampler, v_TexCoord * u_TextureRepeat);
@@ -48,7 +49,13 @@ void main() {
 
     // Disable diffuse lighting if flag set
     if (!u_isLighting) {
-        gl_FragColor = vec4(u_Ambient * pixelColor.rgb, pixelColor.a);
+        // Fog (from book)
+        // We only do fog on ambient lighting, because that's only the grass
+        float fogFactor = clamp((fogDist.y - v_Distance) / (fogDist.y - fogDist.x), 0.0, 1.0);
+
+        vec3 mixedColor = u_Ambient * pixelColor.rgb;
+        mixedColor = mix(u_FogColor, mixedColor, fogFactor);
+        gl_FragColor = vec4(mixedColor, pixelColor.a);
         return;
     }
 
