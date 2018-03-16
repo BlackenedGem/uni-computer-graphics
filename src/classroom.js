@@ -654,13 +654,21 @@ function drawOutside(drawInfo) {
     pushMatrix(modelMatrix);
 
     // Setup lighting
-    //drawInfo.uniform1i()
+    if (daytime) {
+        drawInfo.gl.uniform1i(drawInfo.u_isLighting, false);
+        drawInfo.gl.uniform1f(drawInfo.u_Ambient, 0.65);
+    }
+
 
     enableTextures(6, 10);
     modelMatrix.translate(70, -0.5, 14);
     modelMatrix.scale(100, 1, 100);
     drawBox(drawInfo);
     disableTextures();
+
+    // Revert lighting
+    drawInfo.gl.uniform1i(drawInfo.u_isLighting, true);
+    drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
 
     modelMatrix = popMatrix();
 }
