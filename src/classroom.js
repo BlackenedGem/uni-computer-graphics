@@ -318,6 +318,7 @@ function main() {
 }
 
 function resize() {
+    // Resize the canvas if it changes size
     if (!initMain) {
         return;
     }
@@ -634,6 +635,8 @@ function draw() {
     // Update lighting colours
     updateLightColour();
 
+    /* Start drawing */
+
     // Draw 3 rows of chairs/tables
     for (let i = 0; i < 3; i++) {
         drawRow(drawInfo, -9, 0, 16 - (i * 8), i * 8 + 4);
@@ -673,6 +676,7 @@ function drawOutside(drawInfo) {
     }
 
 
+    // Grass
     enableTextures(6, 30);
     modelMatrix.translate(170, -0.5, 14);
     modelMatrix.scale(300, 1, 300);
@@ -750,7 +754,6 @@ function drawWhiteboard(drawInfo, x, y, z, width, height) {
     drawBox(drawInfo);
 
     // The whiteboard
-    // Surprisingly uses the colour white
     // We make it a bit lighter using u_DiffuseMultiplier
     modelMatrix = topMatrix();
     enableTextures(0);
@@ -819,7 +822,7 @@ function drawCeiling(drawInfo, width, depth, height) {
     // Save the matrix in the middle of the floor
     pushMatrix(modelMatrix);
 
-    // Model the floor
+    // Model the ceiling
     modelMatrix.translate(0, height + 0.5, 0);
     modelMatrix.scale(width, 1, depth); // Scale
     drawBox(drawInfo);
@@ -948,6 +951,7 @@ function drawWallWithWindows(drawInfo, depth, height, windowWidth, heightFromFlo
     let windowCentreHeight = heightFromFloor + (windowHeight / 2);
 
     // Create the two windows
+    // These are the very last draw calls in the render pipeline to retain proper alpha blending
     modelMatrix = topMatrix();
     modelMatrix.translate(0, windowCentreHeight, windowCentreWidth);
     drawWindow(drawInfo, windowWidth, windowHeight);
@@ -1062,7 +1066,7 @@ function drawTable(drawInfo, x, y, z, width, colour, useTexture = false) {
 function drawChair(drawInfo, x, y, z, colour, chairID = -2) {
     pushMatrix(modelMatrix);
 
-    // Default colour value
+    // If a colour is not set then use the wood texture instead
     if (!colour) {
         enableTextures(5);
     } else {
@@ -1159,23 +1163,25 @@ function popMatrix() { // Retrieve the matrix from the array
     return g_matrixStack.pop();
 }
 
-function topMatrix() {
+function topMatrix() { // Retrieve the matrix from the array without removing it
     return new Matrix4(g_matrixStack[g_matrixStack.length - 1]);
 }
 
 /* Update functions */
 
 function setAllChairs(value) {
+    // Set the position of every chair to a given value
     for (let i = 0; i < chairPositions.length; i++) {
         chairPositions[i] = value;
     }
 }
 
 function updateFPS(renderTime) {
+    // Add the frame time to the array
     frameTimes[nextFrame] = renderTime;
     nextFrame++;
 
-    // Reset and update
+    // Update label every X frames
     if (nextFrame >= frameTimes.length) {
         nextFrame = 0;
 
@@ -1194,6 +1200,7 @@ function changeLightingSelection() {
 }
 
 function updateLightIntensities(raveMode = false) {
+    // Change the intensity and dropoff of the lights depending on the current mode
     let dropoff = 10.0;
     let intensity = 1.2;
 
@@ -1217,6 +1224,8 @@ function updateLightIntensities(raveMode = false) {
 }
 
 function updateLightColour() {
+    // Sets the colours of the lights depending on the mode
+
     if (raveMode) {
         // Increment colours
         for (let i = 0; i < raveColors.length; i++) {
@@ -1284,6 +1293,7 @@ function loadTexture(src, textureBinder, u_Sampler, repeat = false) {
         console.log("Could not create texture");
     }
 
+    // Create image object and load
     let image = new Image();
     image.onload = function() {
         onLoadTexture(drawInfo.gl, drawInfo.n, texture, u_Sampler, image, textureBinder, repeat);
@@ -1292,12 +1302,15 @@ function loadTexture(src, textureBinder, u_Sampler, repeat = false) {
 }
 
 function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture, repeat) {
+    // Once an image file has been loaded we can place it into a texture unit and configure it
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
 
     gl.activeTexture(bindTexture);
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+    // Change parameters depending on whether or not we expect to repeat it
     if (repeat) {
         gl.generateMipmap(gl.TEXTURE_2D);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);

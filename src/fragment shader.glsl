@@ -37,22 +37,26 @@ varying vec3 v_Position;
 varying vec2 v_TexCoord;
 
 void main() {
+    // Final colour to be used, only modified if fog is enabled
+    vec3 finalRGBColor;
+
     // Fragment colour (texture or colour)
     vec4 pixelColor;
-    vec3 finalRGBColor;
     if (u_UseTextures) {
         pixelColor = texture2D(u_Sampler, v_TexCoord * u_TextureRepeat);
     } else {
         pixelColor = u_Color;
     }
 
-    // We can change this to alter the base brightness
+    // We can change the ambient lighting to alter the base brightness
     vec3 ambient = u_Ambient * pixelColor.rgb;
 
     // Disable diffuse lighting if flag set
     if (!u_isLighting) {
+        // Only ambient lighting
         finalRGBColor = u_Ambient * pixelColor.rgb;
     } else {
+        // Diffuse lighting
         vec3 diffuse;
         for (int i = 0; i < numLights; i++) {
             // Only include lights that are turned on
@@ -60,6 +64,7 @@ void main() {
                 continue;
             }
 
+            // Retrieve values from array
             float lightIntensity = u_LightIntensity[i].x;
             vec3 lightColor = u_LightColor[i];
 
@@ -72,7 +77,7 @@ void main() {
 
                 // Get the light distance and divide it by the dropoff
                 float lightDistance = length(u_LightSources[i] - v_Position) / u_LightIntensity[i].y;
-                lightIntensity /= pow(1.0 + lightDistance, 2.0); // Use an inverse square law
+                lightIntensity /= pow(1.0 + lightDistance, 2.0); // Use an inverse square law to provide additional dropoff as well as angle
 
                 // Calculate the light direction and make it 1.0 in length
                 // Dot product of light direction and normal
@@ -87,16 +92,17 @@ void main() {
             }
         }
 
+        // Set the final colour by combining the diffuse and ambient lighting
         finalRGBColor = diffuse * u_DiffuseMult + ambient;
     }
 
     if (u_ApplyFog) {
-        // Fog (from book)
-        // We only do fog on ambient lighting, because that's only the grass
+        // Fog (adapted from book
         float Distance = distance(v_Position, u_Eye);
         float fogFactor = clamp((fogDist.y - Distance) / (fogDist.y - fogDist.x), 0.0, 1.0);
         finalRGBColor = mix(u_FogColor, finalRGBColor, fogFactor);
     }
 
+    // Set the colour of the fragment
     gl_FragColor = vec4(finalRGBColor, pixelColor.a);
 }
