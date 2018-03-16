@@ -653,9 +653,11 @@ function draw() {
 function drawOutside(drawInfo) {
     pushMatrix(modelMatrix);
 
-    modelMatrix.translate(50, -0.5, 14);
-    modelMatrix.scale(58, 1, 100);
+    enableTextures(6, 10);
+    modelMatrix.translate(70, -0.5, 14);
+    modelMatrix.scale(100, 1, 100);
     drawBox(drawInfo);
+    disableTextures();
 
     modelMatrix = popMatrix();
 }
