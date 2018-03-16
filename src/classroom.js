@@ -256,6 +256,7 @@ function main() {
     let u_Ambient = gl.getUniformLocation(gl.program, 'u_Ambient');
     let u_Color = gl.getUniformLocation(gl.program, 'u_Color');
     let u_UseTextures = gl.getUniformLocation(gl.program, 'u_UseTextures');
+    let u_TextureRepeat = gl.getUniformLocation(gl.program, 'u_TextureRepeat');
     let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
 
     // Trigger using lighting or not
@@ -289,6 +290,7 @@ function main() {
         u_LightIntensity: u_LightIntensity,
         u_DiffuseMult: u_DiffuseMult,
         u_UseTextures: u_UseTextures,
+        u_TextureRepeat: u_TextureRepeat,
         u_Sampler: u_Sampler,
         n: n
     };
@@ -828,7 +830,7 @@ function drawClassroomSides(drawInfo, width, depth, height) {
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.749, 0.341, 0.341, 1]);
 
     // Model the floor
-    enableTextures(1);
+    enableTextures(1, 15);
     modelMatrix.translate(0, -0.5, 0);
     modelMatrix.rotate(90, 1, 0, 0);
     modelMatrix.scale(width, depth, 1); // Scale
@@ -1200,8 +1202,9 @@ function updateLightColour() {
 
 /* Render helper functions */
 
-function enableTextures(textureID) {
+function enableTextures(textureID, repeat = 1) {
     drawInfo.gl.uniform1i(drawInfo.u_UseTextures, true);
+    drawInfo.gl.uniform1f(drawInfo.u_TextureRepeat, repeat);
     drawInfo.gl.uniform1i(drawInfo.u_Sampler, textureID);
 }
 
@@ -1218,7 +1221,7 @@ function loadShaders() {
 
 function initTextures(gl) {
     loadTexture("whiteboard.png", gl.TEXTURE0, drawInfo.u_Sampler);
-    loadTexture("carpet.jpg", gl.TEXTURE1, drawInfo.u_Sampler);
+    loadTexture("carpet.jpg", gl.TEXTURE1, drawInfo.u_Sampler, true);
     loadTexture("hallway.jpg", gl.TEXTURE2, drawInfo.u_Sampler);
     loadTexture("wood.jpg", gl.TEXTURE3, drawInfo.u_Sampler);
     loadTexture("door.jpg", gl.TEXTURE4, drawInfo.u_Sampler);
@@ -1226,7 +1229,7 @@ function initTextures(gl) {
     return true;
 }
 
-function loadTexture(src, textureBinder, u_Sampler) {
+function loadTexture(src, textureBinder, u_Sampler, repeat = false) {
     let texture = drawInfo.gl.createTexture();
 
     if (!texture) {
@@ -1235,22 +1238,28 @@ function loadTexture(src, textureBinder, u_Sampler) {
 
     let image = new Image();
     image.onload = function() {
-        onLoadTexture(drawInfo.gl, drawInfo.n, texture, u_Sampler, image, textureBinder);
+        onLoadTexture(drawInfo.gl, drawInfo.n, texture, u_Sampler, image, textureBinder, repeat);
     };
     image.src = src;
 }
 
-function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture) {
+function onLoadTexture(gl, n, texture, u_Sampler, image, bindTexture, repeat) {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
 
     gl.activeTexture(bindTexture);
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+    if (repeat) {
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    } else {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
 
     // Increment initialisation counter
     initCounter++;

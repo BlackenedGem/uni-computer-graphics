@@ -11,6 +11,7 @@ uniform bool u_isLighting;
 // Texture information
 uniform sampler2D u_Sampler;
 uniform bool u_UseTextures;
+uniform float u_TextureRepeat; // Number of times to tile the texture
 
 // Lighting information
 uniform vec3 u_AmbientColor;// Global light colour
@@ -38,7 +39,7 @@ void main() {
 
     vec4 pixelColor;
     if (u_UseTextures) {
-        pixelColor = texture2D(u_Sampler, v_TexCoord);
+        pixelColor = texture2D(u_Sampler, v_TexCoord * u_TextureRepeat);
     } else {
         pixelColor = u_Color;
     }
