@@ -259,6 +259,7 @@ function main() {
     let u_TextureRepeat = gl.getUniformLocation(gl.program, 'u_TextureRepeat');
     let u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler');
     let u_FogColor = gl.getUniformLocation(gl.program, 'u_FogColor');
+    let u_ApplyFog = gl.getUniformLocation(gl.program, 'u_ApplyFog');
     let u_Eye = gl.getUniformLocation(gl.program, 'u_Eye');
 
     // Trigger using lighting or not
@@ -268,7 +269,7 @@ function main() {
         !u_ProjMatrix || !u_LightColor || !u_LightSources || !u_LightIntensity ||
         !u_LightEnabled || !u_LightType || !u_Ambient || !u_isLighting || !u_Color ||
         !u_DiffuseMult || !u_UseTextures || !u_Sampler || !u_TextureRepeat ||
-        !u_FogColor || !u_Eye) {
+        !u_FogColor || !u_Eye || !u_ApplyFog) {
         console.log('Failed to Get the storage locations of at least one uniform');
         //return;
     }
@@ -297,6 +298,7 @@ function main() {
         u_Sampler: u_Sampler,
         u_FogColor: u_FogColor,
         u_Eye: u_Eye,
+        u_ApplyFog: u_ApplyFog,
         n: n
     };
 
@@ -663,7 +665,8 @@ function draw() {
 function drawOutside(drawInfo) {
     pushMatrix(modelMatrix);
 
-    // Setup lighting
+    // Setup lighting/fog
+    drawInfo.gl.uniform1i(drawInfo.u_ApplyFog, true);
     if (daytime) {
         drawInfo.gl.uniform1i(drawInfo.u_isLighting, false);
         drawInfo.gl.uniform1f(drawInfo.u_Ambient, 0.65);
@@ -676,7 +679,8 @@ function drawOutside(drawInfo) {
     drawBox(drawInfo);
     disableTextures();
 
-    // Revert lighting
+    // Revert lighting/fog
+    drawInfo.gl.uniform1i(drawInfo.u_ApplyFog, false);
     drawInfo.gl.uniform1i(drawInfo.u_isLighting, true);
     drawInfo.gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
 

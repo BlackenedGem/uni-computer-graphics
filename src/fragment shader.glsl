@@ -29,6 +29,7 @@ uniform vec3 u_LightColor[numLights]; // Colour of the light
 uniform vec3 u_Eye;
 uniform vec3 u_FogColor;
 const vec2 fogDist = vec2(80, 150);
+uniform bool u_ApplyFog;
 
 // Varyings
 varying vec3 v_Normal;
@@ -38,6 +39,7 @@ varying vec2 v_TexCoord;
 void main() {
     // Fragment colour (texture or colour)
     vec4 pixelColor;
+    vec3 finalRGBColor;
     if (u_UseTextures) {
         pixelColor = texture2D(u_Sampler, v_TexCoord * u_TextureRepeat);
     } else {
@@ -49,51 +51,52 @@ void main() {
 
     // Disable diffuse lighting if flag set
     if (!u_isLighting) {
+        finalRGBColor = u_Ambient * pixelColor.rgb;
+    } else {
+        vec3 diffuse;
+        for (int i = 0; i < numLights; i++) {
+            // Only include lights that are turned on
+            if (!u_LightEnabled[i]) {
+                continue;
+            }
+
+            float lightIntensity = u_LightIntensity[i].x;
+            vec3 lightColor = u_LightColor[i];
+
+            vec3 lightDirection;
+            if (u_LightType[i]) {
+                // Spot/positional lighting
+
+                vec3 lightPosition = vec3(u_LightSources[i]);
+                lightDirection = normalize(u_LightSources[i] - v_Position);
+
+                // Get the light distance and divide it by the dropoff
+                float lightDistance = length(u_LightSources[i] - v_Position) / u_LightIntensity[i].y;
+                lightIntensity /= pow(1.0 + lightDistance, 2.0); // Use an inverse square law
+
+                // Calculate the light direction and make it 1.0 in length
+                // Dot product of light direction and normal
+                float nDotL = max(dot(lightDirection, v_Normal), 0.0);
+                diffuse += lightColor  * pixelColor.rgb * nDotL * lightIntensity;
+            } else {
+                // Support directional lighting, although we don't use this in the final version because it looks bad
+
+                lightDirection = normalize(u_LightSources[i]);
+                float nDotL = max(dot(lightDirection, v_Normal), 0.0);
+                diffuse += nDotL * lightColor * pixelColor.rgb * lightIntensity;
+            }
+        }
+
+        finalRGBColor = diffuse * u_DiffuseMult + ambient;
+    }
+
+    if (u_ApplyFog) {
         // Fog (from book)
         // We only do fog on ambient lighting, because that's only the grass
         float Distance = distance(v_Position, u_Eye);
         float fogFactor = clamp((fogDist.y - Distance) / (fogDist.y - fogDist.x), 0.0, 1.0);
-
-        vec3 mixedColor = u_Ambient * pixelColor.rgb;
-        mixedColor = mix(u_FogColor, mixedColor, fogFactor);
-        gl_FragColor = vec4(mixedColor, pixelColor.a);
-        return;
+        finalRGBColor = mix(u_FogColor, finalRGBColor, fogFactor);
     }
 
-
-    vec3 diffuse;
-    for (int i = 0; i < numLights; i++) {
-        // Only include lights that are turned on
-        if (!u_LightEnabled[i]) {
-            continue;
-        }
-
-        float lightIntensity = u_LightIntensity[i].x;
-        vec3 lightColor = u_LightColor[i];
-
-        vec3 lightDirection;
-        if (u_LightType[i]) {
-            // Spot/positional lighting
-
-            vec3 lightPosition = vec3(u_LightSources[i]);
-            lightDirection = normalize(u_LightSources[i] - v_Position);
-
-            // Get the light distance and divide it by the dropoff
-            float lightDistance = length(u_LightSources[i] - v_Position) / u_LightIntensity[i].y;
-            lightIntensity /= pow(1.0 + lightDistance, 2.0); // Use an inverse square law
-
-            // Calculate the light direction and make it 1.0 in length
-            // Dot product of light direction and normal
-            float nDotL = max(dot(lightDirection, v_Normal), 0.0);
-            diffuse += lightColor  * pixelColor.rgb * nDotL * lightIntensity;
-        } else {
-            // Support directional lighting, although we don't use this in the final version because it looks bad
-
-            lightDirection = normalize(u_LightSources[i]);
-            float nDotL = max(dot(lightDirection, v_Normal), 0.0);
-            diffuse += nDotL * lightColor * pixelColor.rgb * lightIntensity;
-        }
-    }
-
-    gl_FragColor = vec4(diffuse * u_DiffuseMult + ambient, pixelColor.a);
+    gl_FragColor = vec4(finalRGBColor, pixelColor.a);
 }
