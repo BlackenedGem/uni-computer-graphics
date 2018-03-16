@@ -268,7 +268,7 @@ function main() {
         !u_ProjMatrix || !u_LightColor || !u_LightSources || !u_LightIntensity ||
         !u_LightEnabled || !u_LightType || !u_Ambient || !u_isLighting || !u_Color ||
         !u_DiffuseMult || !u_UseTextures || !u_Sampler || !u_TextureRepeat ||
-        !u_FogColor) {
+        !u_FogColor || !u_Eye) {
         console.log('Failed to Get the storage locations of at least one uniform');
         return;
     }
@@ -296,6 +296,7 @@ function main() {
         u_TextureRepeat: u_TextureRepeat,
         u_Sampler: u_Sampler,
         u_FogColor: u_FogColor,
+        u_Eye: u_Eye,
         n: n
     };
 
@@ -466,9 +467,12 @@ function positionCamera(gl) {
     viewMatrix.setLookAt(camera.x, camera.y, camera.z, camera.x + x_at_off, camera.y + y_at_off, camera.z + z_at_off, 0, 1, 0);
     projMatrix.setPerspective(camera.fov, camera.aspectRatio, 0.1, 100);
 
-    // Pass the model, view, and projection matrix to the uniform variable respectively
+    // Pass the view, and projection matrix to the uniform variable respectively
     gl.uniformMatrix4fv(camera.u_ViewMatrix, false, viewMatrix.elements);
     gl.uniformMatrix4fv(camera.u_ProjMatrix, false, projMatrix.elements);
+
+    // Pass the location of the camera
+    gl.uniform4f(drawInfo.u_Eye, camera.x, camera.y, camera.z, 1);
 }
 
 /* Initialisation functions */
