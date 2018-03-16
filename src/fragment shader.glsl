@@ -31,12 +31,6 @@ varying vec3 v_Position;
 varying vec2 v_TexCoord;
 
 void main() {
-    // Disable lighting if flag set
-    if (!u_isLighting) {
-        gl_FragColor = u_Color;
-        return;
-    }
-
     vec4 pixelColor;
     if (u_UseTextures) {
         pixelColor = texture2D(u_Sampler, v_TexCoord * u_TextureRepeat);
@@ -44,8 +38,17 @@ void main() {
         pixelColor = u_Color;
     }
 
-    vec3 diffuse;
+    // We can change this to alter the base brightness
+    vec3 ambient = u_Ambient * pixelColor.rgb;
 
+    // Disable diffuse lighting if flag set
+    if (!u_isLighting) {
+        gl_FragColor = vec4(u_Ambient * pixelColor.rgb, pixelColor.a);
+        return;
+    }
+
+
+    vec3 diffuse;
     for (int i = 0; i < numLights; i++) {
         // Only include lights that are turned on
         if (!u_LightEnabled[i]) {
@@ -78,9 +81,6 @@ void main() {
             diffuse += nDotL * lightColor * pixelColor.rgb * lightIntensity;
         }
     }
-
-    // Toggle if the light is an actual light source
-    vec3 ambient = u_Ambient * pixelColor.rgb;
 
     gl_FragColor = vec4(diffuse * u_DiffuseMult + ambient, pixelColor.a);
 }

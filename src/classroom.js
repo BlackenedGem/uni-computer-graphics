@@ -615,7 +615,7 @@ function draw() {
 
     // Reset model matrix and set some uniforms
     modelMatrix.setTranslate(0, 0, 0);  // No Translation
-    gl.uniform1i(u_isLighting, true); // Will apply lighting
+    gl.uniform1i(u_isLighting, true); // Will apply diffuse lighting
     gl.uniform1f(drawInfo.u_Ambient, DEFAULT_AMBIENT);
     gl.uniform1iv(drawInfo.u_LightEnabled, lightsEnabled); // Which lights to turn on
 
@@ -653,8 +653,11 @@ function draw() {
 function drawOutside(drawInfo) {
     pushMatrix(modelMatrix);
 
+    // Setup lighting
+    //drawInfo.uniform1i()
+
     enableTextures(6, 10);
-    modelMatrix.translate(70.5, -0.5, 14);
+    modelMatrix.translate(70, -0.5, 14);
     modelMatrix.scale(100, 1, 100);
     drawBox(drawInfo);
     disableTextures();
