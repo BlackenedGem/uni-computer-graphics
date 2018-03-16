@@ -522,7 +522,7 @@ function initVertexBuffers(gl) {
 
     let textures = new Float32Array([
         0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
-        0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
+        1.0, 0.0,   1.0, 1.0,   0.0, 1.0,   0.0, 0.0,
         0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
         0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
         0.0, 0.0,   1.0, 0.0,   1.0, 1.0,   0.0, 1.0,
@@ -654,7 +654,7 @@ function drawOutside(drawInfo) {
     pushMatrix(modelMatrix);
 
     enableTextures(6, 10);
-    modelMatrix.translate(70, -0.5, 14);
+    modelMatrix.translate(70.5, -0.5, 14);
     modelMatrix.scale(100, 1, 100);
     drawBox(drawInfo);
     disableTextures();
@@ -767,7 +767,7 @@ function drawDoor(drawInfo, x, y, z) {
     // Handle
     drawInfo.gl.uniform4fv(drawInfo.u_Color, [0.573, 0.502, 0.137, 1]);
     modelMatrix = popMatrix();
-    modelMatrix.translate(depth / -2, 3.5, - (width - 1));
+    modelMatrix.translate(depth / -2, 3.7, - (width - 1));
     modelMatrix.scale(depth + 0.7, 0.4, 0.4); // Scale
     drawBox(drawInfo);
 
