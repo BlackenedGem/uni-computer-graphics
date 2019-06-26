@@ -25,3 +25,5 @@ Chair: https://lupulsinguratic.deviantart.com/art/Green-plastic-texture-57416899
 Grass: https://opengameart.org/node/7787
 Hallway: https://inst.eecs.berkeley.edu/~cs194-26/fa14/upload/files/proj7g/cs194-kr/jenny_pullman_proj7g/
 Wood: http://www.9apoc.com/wood-table-pattern/appealing-wood-table-pattern-texture-home-design/
+
+EXAMPLE IMAGE: classroom.png (https://raw.githubusercontent.com/BlackenedGem/computer-graphics/master/classroom.png?token=ABKDTCSOW4RTDC3CPRSS7L25DU2YS)
