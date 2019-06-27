@@ -5,7 +5,7 @@ Requires Javascript ES6
 Requires access to local files (for shader files/images)
 	On chrome this might require allow local files flag to be set
 	Firefox should not require this
-	
+
 NOTEWORTHY FEATURES 'OUTSIDE' OF SPEC
 Alpha blending - windows
 Fog - outside
