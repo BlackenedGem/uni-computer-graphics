@@ -1,5 +1,7 @@
 ### Running instructions  
-Web page: /src/classroom.html  
+Online page: ![Link](https://hollyroberts.github.io/uni-computer-graphics/)  
+Local page:  /docs/index.html  
+
 Recommended browser: Firefox (Optimised for Firefox)  
 Requires Javascript ES6  
 Requires access to local files (for shader files/images)  
