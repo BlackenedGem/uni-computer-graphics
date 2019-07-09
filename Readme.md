@@ -1,5 +1,5 @@
 ### Running instructions  
-Online page: ![Link](https://hollyroberts.github.io/uni-computer-graphics/)  
+Online page: [Link](https://hollyroberts.github.io/uni-computer-graphics/)  
 Local page:  /docs/index.html  
 
 Recommended browser: Firefox (Optimised for Firefox)  
